@@ -1,0 +1,60 @@
+- name: create cicd namespace
+  kubernetes.core.k8s:
+    name: cicd
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: create jenkins serviceaccount (ns cicd)
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: jenkins
+
+- name: create kaniko configmap (ns cicd)
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    template: 'configmap.yaml.j2'
+
+- name: create rolebinding (ns cicd)
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: jenkins-sa-role
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: edit
+      subjects:
+      - kind: ServiceAccount
+        name: jenkins
+
+- name: get jenkins serviceaccount details (ns cicd)
+  kubernetes.core.k8s_info:
+    kind: ServiceAccount
+    namespace: cicd
+    name: jenkins
+  register: sa_jenkins
+
+- name: get jenkins token details (ns cicd)
+  kubernetes.core.k8s_info:
+    kind: Secret
+    namespace: cicd
+    name: "{{ sa_jenkins.resources[0].secrets[0].name }}"
+  register: jenkins_token_data
+
+- name: fetch serviceaccount token (ns cicd)
+  set_fact:
+    jenkins_token: "{{ jenkins_token_data.resources[0].data.token | b64decode }}"
+
+- debug:
+    msg: "token to be added to Jenkins cloud config: {{ jenkins_token }}"

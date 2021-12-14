@@ -1,0 +1,5 @@
+jenkins:
+  admin_password: adminpassword
+docker_hub:
+  username: my_user
+  password: my_password

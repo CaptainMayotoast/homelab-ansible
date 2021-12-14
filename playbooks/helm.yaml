@@ -1,0 +1,7 @@
+- hosts: helm
+  roles:
+    - andrewrothstein.kubernetes-helm
+
+- hosts: "helm"
+  roles:
+    - role: 'roles/ansible-k8s'

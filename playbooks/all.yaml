@@ -1,0 +1,5 @@
+- import_playbook: helm.yaml
+- import_playbook: metallb.yaml
+- import_playbook: longhorn.yaml
+- import_playbook: jenkins.yaml
+- import_playbook: kubernetes-dashboard.yaml

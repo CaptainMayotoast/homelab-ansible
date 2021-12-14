@@ -1,0 +1,8 @@
+- hosts: "control_planes, nodes"
+  become: yes
+  roles:
+    - role: 'roles/longhorn-dependencies'
+
+- hosts: "helm"
+  roles:
+    - role: 'roles/longhorn-helm'

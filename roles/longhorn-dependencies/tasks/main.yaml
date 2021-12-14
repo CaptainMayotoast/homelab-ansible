@@ -1,0 +1,11 @@
+- name: install longhorn dependencies
+  apt:
+    update_cache: yes
+    name:
+      - open-iscsi
+      - bash
+      - curl
+      - util-linux
+      - grep
+      - mawk
+      - libblkid1

@@ -1,0 +1,4 @@
+- hosts: "helm"
+  roles:
+    - role: 'roles/ns-cicd'
+    - role: 'roles/jenkins-helm'
