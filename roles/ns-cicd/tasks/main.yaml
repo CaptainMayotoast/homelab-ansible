@@ -45,11 +45,25 @@
     name: jenkins
   register: sa_jenkins
 
+- name: create jenkins token secret (ns cicd)
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: jenkins
+        annotations:
+          kubernetes.io/service-account.name: "jenkins"
+      type: kubernetes.io/service-account-token
+      data:
+
 - name: get jenkins token details (ns cicd)
   kubernetes.core.k8s_info:
     kind: Secret
     namespace: cicd
-    name: "{{ sa_jenkins.resources[0].secrets[0].name }}"
+    name: jenkins
   register: jenkins_token_data
 
 - name: fetch serviceaccount token (ns cicd)

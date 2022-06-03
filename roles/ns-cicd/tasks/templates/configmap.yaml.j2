@@ -4,10 +4,13 @@ data:
   config.json: |-
     {
         "auths": {
+            "ghcr.io": {
+                "auth": "{{ (ghcr.username + ':' + ghcr.password) | b64encode }}"
+            },
             "https://index.docker.io/v1/": {
                 "auth": "{{ (docker_hub.username + ':' + docker_hub.password) | b64encode }}"
             }
         }
     }
 metadata:
-  name: kaniko-dockerhub
+  name: kaniko

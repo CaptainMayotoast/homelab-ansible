@@ -41,12 +41,20 @@
     name: jenkins
     repo_url: https://charts.jenkins.io
 
+- name: purge jenkins
+  kubernetes.core.helm:
+    name: jenkins
+    namespace: jenkins
+    state: absent
+    wait: true
+
 - name: install jenkins
   kubernetes.core.helm:
     name: jenkins
     namespace: jenkins
     chart_ref: jenkins/jenkins
     create_namespace: true
+    purge: yes
     update_repo_cache: yes
     values:
       controller:
@@ -59,12 +67,14 @@
         admin:
           existingSecret: jenkins-secret
         installPlugins:
-          - kubernetes:1.30.11
-          - workflow-aggregator:2.6
-          - git:4.10.0
-          - configuration-as-code:1.55
+          - kubernetes:3600.v144b_cd192ca_a_
+          - workflow-aggregator:581.v0c46fa_697ffd
+          - git:4.11.3
+          - configuration-as-code:1429.v09b_044a_c93de
           - kubernetes-credentials-provider:0.20
-          - job-dsl:1.78.1
+          - job-dsl:1.79
+          - ldap:2.10
+          - role-strategy:488.v0634ce149b_8c
         JCasC:
           configScripts:
             jenkins-casc-configs: |

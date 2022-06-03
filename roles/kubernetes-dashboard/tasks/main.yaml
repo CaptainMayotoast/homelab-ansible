@@ -53,11 +53,25 @@
     name: admin-user
   register: sa_admin_user
 
+- name: create admin-user token secret (ns kubernetes-dashboard)
+  kubernetes.core.k8s:
+    state: present
+    namespace: kubernetes-dashboard
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: admin-user
+        annotations:
+          kubernetes.io/service-account.name: "admin-user"
+      type: kubernetes.io/service-account-token
+      data:
+
 - name: get admin-user token details (ns kubernetes-dashboard)
   kubernetes.core.k8s_info:
     kind: Secret
     namespace: kubernetes-dashboard
-    name: "{{ sa_admin_user.resources[0].secrets[0].name }}"
+    name: admin-user
   register: admin_user_token_data
 
 - name: fetch serviceaccount token (ns kubernetes-dashboard)
