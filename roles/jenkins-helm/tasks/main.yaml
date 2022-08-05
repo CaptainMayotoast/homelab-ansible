@@ -67,14 +67,14 @@
         admin:
           existingSecret: jenkins-secret
         installPlugins:
-          - kubernetes:3600.v144b_cd192ca_a_
-          - workflow-aggregator:581.v0c46fa_697ffd
-          - git:4.11.3
-          - configuration-as-code:1429.v09b_044a_c93de
-          - kubernetes-credentials-provider:0.20
-          - job-dsl:1.79
-          - ldap:2.10
-          - role-strategy:488.v0634ce149b_8c
+          - kubernetes:3670.v6ca_059233222  # https://plugins.jenkins.io/kubernetes/
+          - workflow-aggregator:590.v6a_d052e5a_a_b_5  # https://plugins.jenkins.io/workflow-aggregator/
+          - git:4.11.4  # https://plugins.jenkins.io/git/
+          - configuration-as-code:1512.vb_79d418d5fc8  # https://plugins.jenkins.io/configuration-as-code/
+          - kubernetes-credentials-provider:1.196.va_55f5e31e3c2  # https://plugins.jenkins.io/kubernetes-credentials-provider/
+          - job-dsl:1.81  # https://plugins.jenkins.io/job-dsl/
+          - ldap:2.11  # https://plugins.jenkins.io/ldap/
+          - role-strategy:555.v8d194cc85b_30  # https://plugins.jenkins.io/role-strategy/
         JCasC:
           configScripts:
             jenkins-casc-configs: |

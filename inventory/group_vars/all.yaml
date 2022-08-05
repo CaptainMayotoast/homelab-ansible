@@ -3,3 +3,6 @@ jenkins:
 docker_hub:
   username: my_user
   password: my_password
+ghcr:
+  username: my_user
+  password: my_password
