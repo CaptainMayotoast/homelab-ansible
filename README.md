@@ -24,5 +24,10 @@ Install kubernetes-dashboard
 ansible-playbook -i inventory/dev playbooks/kubernetes-dashboard.yaml
 ```
 
+# Update Nodes
+```
+ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml
+```
+
 # Jenkins
 To access Jenkins, login with `admin`/`adminpassword`
