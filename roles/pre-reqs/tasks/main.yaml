@@ -1,0 +1,26 @@
+- name: install helm key
+  get_url:
+    url: https://baltocdn.com/helm/signing.asc  # from https://helm.sh/docs/intro/install/#from-apt-debianubuntu
+    dest: /etc/apt/keyrings/helm.asc
+    mode: '0644'
+    force: true
+
+- name: add helm repo
+  apt_repository:
+    filename: helm
+    repo: 'deb [signed-by=/etc/apt/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main'
+
+- name:  install helm
+  apt:
+    update_cache: yes
+    name:  helm
+    state: present
+
+- name: install pip
+  apt:
+    update_cache: yes
+    name: python3-pip
+
+- name: install kubernetes python package
+  pip:
+    name: kubernetes

@@ -13,3 +13,4 @@
       service:
         ui:
           type: LoadBalancer
+          loadBalancerIP: "{{ longhorn.load_balancer_ip }}"

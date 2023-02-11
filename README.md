@@ -10,13 +10,13 @@ Ansible playbooks to install tools on a Kubernetes cluster
 ```
 ansible-galaxy collection install kubernetes.core
 ansible-galaxy collection install cloud.common
-ansible-galaxy install andrewrothstein.kubernetes-helm
 
 # install it all
-ansible-playbook -i inventory/dev playbooks/all.yaml
+ansible-playbook -i inventory/dev playbooks/all.yaml --user appuser
 
-ansible-playbook -i inventory/dev playbooks/helm.yaml
-ansible-playbook -i inventory/dev playbooks/longhorn.yaml
+ansible-playbook -i inventory/dev playbooks/helm.yaml --user appuser
+ansible-playbook -i inventory/dev playbooks/longhorn.yaml --user appuser
+ansible-playbook -i inventory/dev playbooks/jenkins.yaml --user appuser
 ```
 
 Install kubernetes-dashboard
@@ -26,8 +26,8 @@ ansible-playbook -i inventory/dev playbooks/kubernetes-dashboard.yaml
 
 # Update Nodes
 ```
-ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml
+ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml --user appuser
 ```
 
 # Jenkins
-To access Jenkins, login with `admin`/`adminpassword`
+To access Jenkins, login with `admin`/`changethisP455word!`

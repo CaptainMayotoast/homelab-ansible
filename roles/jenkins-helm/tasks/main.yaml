@@ -1,11 +1,11 @@
-- name: create jenkins namespace
+- name: create 'jenkins' namespace
   kubernetes.core.k8s:
     name: jenkins
     api_version: v1
     kind: Namespace
     state: present
 
-- name: create secret
+- name: create Jenkins login username and password as a secret
   kubernetes.core.k8s:
     state: present
     namespace: jenkins
@@ -16,10 +16,10 @@
         name: jenkins-secret
       data:
         jenkins-admin-password: "{{ jenkins.admin_password | b64encode }}"
-        jenkins-admin-user: YWRtaW4=
+        jenkins-admin-user: "{{ jenkins.admin_username | b64encode }}"
       type: Opaque
 
-- name: create secret text (cicd jenkins token)
+- name: create secret text that will get synced into a Jenkins credential using kubernetes-credentials-provider Jenkins plugin
   kubernetes.core.k8s:
     state: present
     namespace: jenkins
@@ -27,7 +27,7 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: ns-cicd-sa-jenkins-token
+        name: k8s-auth-token-for-namespace-cicd
         labels:
           "jenkins.io/credentials-type": "secretText"
         annotations:
@@ -36,64 +36,76 @@
         text: "{{ jenkins_token }}"
       type: Opaque
 
+- name: create docker hub registry secret that will get synced into a Jenkins credential using kubernetes-credentials-provider Jenkins plugin
+  kubernetes.core.k8s:
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: docker-hub-registry-secret
+        labels:
+          "jenkins.io/credentials-type": "usernamePassword"
+        annotations:
+          "jenkins.io/credentials-description" : "docker hub registry credentials"
+      stringData:
+        username: "{{ docker_hub.username }}"
+        password: "{{ docker_hub.password }}"
+      type: Opaque
+
 - name: add jenkins helm repo
   kubernetes.core.helm_repository:
     name: jenkins
     repo_url: https://charts.jenkins.io
 
-- name: purge jenkins
-  kubernetes.core.helm:
-    name: jenkins
-    namespace: jenkins
-    state: absent
-    wait: true
+# TODO what to do here? should it be purged? probably not
+# - name: purge jenkins
+#   kubernetes.core.helm:
+#     name: jenkins
+#     namespace: jenkins
+#     state: absent
+#     wait: true
 
 - name: install jenkins
   kubernetes.core.helm:
     name: jenkins
     namespace: jenkins
     chart_ref: jenkins/jenkins
-    create_namespace: true
-    purge: yes
+    create_namespace: false
+    # purge: yes
     update_repo_cache: yes
     values:
       controller:
         adminSecret: true
-        jenkinsUrl: http://192.168.2.241
-        #jenkinsUrlProtocol:
-        #jenkinsUriPrefix: /
+        jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
         serviceType: LoadBalancer
         servicePort: 80
+        loadBalancerIP: "{{ jenkins.load_balancer_ip }}"
         admin:
           existingSecret: jenkins-secret
         installPlugins:
-          - kubernetes:3670.v6ca_059233222  # https://plugins.jenkins.io/kubernetes/
-          - workflow-aggregator:590.v6a_d052e5a_a_b_5  # https://plugins.jenkins.io/workflow-aggregator/
-          - git:4.11.4  # https://plugins.jenkins.io/git/
-          - configuration-as-code:1512.vb_79d418d5fc8  # https://plugins.jenkins.io/configuration-as-code/
-          - kubernetes-credentials-provider:1.196.va_55f5e31e3c2  # https://plugins.jenkins.io/kubernetes-credentials-provider/
-          - job-dsl:1.81  # https://plugins.jenkins.io/job-dsl/
-          - ldap:2.11  # https://plugins.jenkins.io/ldap/
-          - role-strategy:555.v8d194cc85b_30  # https://plugins.jenkins.io/role-strategy/
+          "{{ jenkins.install_plugins }}"
         JCasC:
           configScripts:
             jenkins-casc-configs: |
               jenkins:
-                systemMessage: Labs - Get going
+                systemMessage: Lab - Get building!
                 clouds:
                   - kubernetes:
                       containerCap: 10
                       containerCapStr: "10"
-                      credentialsId: "ns-cicd-sa-jenkins-token"
+                      credentialsId: "k8s-auth-token-for-namespace-cicd"
                       jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
                       jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:80"
                       name: "cicd"
                       namespace: "cicd"
                       serverUrl: "https://kubernetes.default"
+                      skipTlsVerify: true
               jobs:
                 - script: >
                     pipelineJob('go-sample') {
-                      description("go-sample pipeline")
+                      description("An example Jenkins pipeline that:\n\t  - checks out code from https://github.com/markperdue/go-sample.git\n\t  - builds the go source code into a container\n\t  - publishes the container to a registry\n\t  - deploys the application to your homelab cluster using the included helm chart\n\nHit 'Build Now' to trigger an intial run of the build job.\nAfter the first run, click 'Build with Parameters' for all the options!")
                       definition {
                         cpsScm {
                           scm {

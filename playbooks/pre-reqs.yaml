@@ -1,0 +1,4 @@
+- hosts: "helm"
+  become: yes
+  roles:
+    - role: 'roles/pre-reqs'

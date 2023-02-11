@@ -1,5 +1,6 @@
-- import_playbook: helm.yaml
+- import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
 - import_playbook: jenkins.yaml
 - import_playbook: kubernetes-dashboard.yaml
+- import_playbook: metrics-server.yaml

@@ -1,3 +1,4 @@
+# reference https://longhorn.io/docs/1.4.0/deploy/install/#installation-requirements
 - name: install longhorn dependencies
   apt:
     update_cache: yes
@@ -5,7 +6,5 @@
       - open-iscsi
       - bash
       - curl
-      - util-linux
       - grep
-      - mawk
-      - libblkid1
+    state: present

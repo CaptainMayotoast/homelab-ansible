@@ -1,3 +1,16 @@
+- name: create 'metallb-system' namespace
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: metallb-system
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/warn: privileged
+
 - name: add metallb helm repo
   kubernetes.core.helm_repository:
     name: metallb
@@ -8,7 +21,7 @@
     name: metallb
     namespace: metallb-system
     chart_ref: metallb/metallb
-    create_namespace: true
+    create_namespace: false
     wait: yes
 
 - name: configure metallb address pool
@@ -22,7 +35,7 @@
         namespace: metallb-system
       spec:
         addresses:
-        - 192.168.2.240-192.168.2.250
+        - "{{ metallb.address_pool }}"
 
 - name: configure metallb l2 advertisement
   kubernetes.core.k8s:

@@ -1,12 +1,12 @@
-- name: install kubernetes-dashboard
+- name: install kubernetes dashboard
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
     definition: '{{ item }}'
-  with_items: '{{ lookup("url", "https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml", split_lines=False) | from_yaml_all | list }}'
+  with_items: '{{ lookup("url", kubernetes_dashboard.manifest_url, split_lines=False) | from_yaml_all | list }}'
   when: item is not none
 
-- name: patch kubernetes-dashboard service to LoadBalancer
+- name: patch kubernetes dashboard service to LoadBalancer
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
@@ -17,8 +17,9 @@
         name: kubernetes-dashboard
       spec:
         type: LoadBalancer
+        loadBalancerIP: "{{ kubernetes_dashboard.load_balancer_ip }}"
 
-- name: create serviceaccount (ns kubernetes-dashboard)
+- name: create service account for kubernetes dashboard
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
@@ -28,7 +29,7 @@
       metadata:
         name: admin-user
 
-- name: create clusterrolebinding (ns kubernetes-dashboard)
+- name: grant the 'admin-user' service account the 'cluster-admin' cluster role for the kubernetes dashboard
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
@@ -46,14 +47,14 @@
         name: admin-user
         namespace: kubernetes-dashboard
 
-- name: get admin-user serviceaccount details (ns kubernetes-dashboard)
+- name: fetch 'admin-user' service account details from 'kubernetes-dashboard' namespace
   kubernetes.core.k8s_info:
     kind: ServiceAccount
     namespace: kubernetes-dashboard
     name: admin-user
   register: sa_admin_user
 
-- name: create admin-user token secret (ns kubernetes-dashboard)
+- name: create 'admin-user' token secret in 'kubernetes-dashboard' namespace
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
@@ -67,25 +68,25 @@
       type: kubernetes.io/service-account-token
       data:
 
-- name: get admin-user token details (ns kubernetes-dashboard)
+- name: get 'admin-user' token details from 'kubernetes-dashboard' namespace
   kubernetes.core.k8s_info:
     kind: Secret
     namespace: kubernetes-dashboard
     name: admin-user
   register: admin_user_token_data
 
-- name: fetch serviceaccount token (ns kubernetes-dashboard)
+- name: set fact of service account token from 'kubernetes-dashboard' namespace
   set_fact:
     admin_user_token: "{{ admin_user_token_data.resources[0].data.token | b64decode }}"
 
-- name: get service details (ns kubernetes-dashboard)
+- name: get service details from 'kubernetes-dashboard' namespace
   kubernetes.core.k8s_info:
     kind: Service
     namespace: kubernetes-dashboard
     name: kubernetes-dashboard
   register: service_kubernetes_dashboard_data
 
-- name: fetch external ip of service (ns kubernetes-dashboard)
+- name: set fact of external ip of service from 'kubernetes-dashboard' namespace
   set_fact:
     kubernetes_dashboard_external_ip: "{{ service_kubernetes_dashboard_data.resources[0].status.loadBalancer.ingress[0].ip }}"
 
