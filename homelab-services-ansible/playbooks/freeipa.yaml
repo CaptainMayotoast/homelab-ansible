@@ -1,7 +1,0 @@
-- hosts: all
-  roles:
-    - role: "roles/freeipa-dependency"
-
-- hosts: "control_planes"
-  roles:
-    - role: 'roles/freeipa'

@@ -1,3 +1,0 @@
-- hosts: "control_planes"
-  roles:
-    - role: 'roles/openldap'

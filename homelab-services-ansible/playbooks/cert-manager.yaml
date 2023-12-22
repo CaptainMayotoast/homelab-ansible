@@ -1,8 +1,0 @@
-- hosts: "control_planes, nodes"
-  become: yes
-  roles:
-    - role: 'roles/cert-manager-dependencies'
-
-- hosts: "helm"
-  roles:
-    - role: 'roles/cert-manager-helm'

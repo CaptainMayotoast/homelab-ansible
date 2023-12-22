@@ -1,3 +1,0 @@
-- hosts: "helm"
-  roles:
-    - role: 'roles/ingress-nginx-helm'
