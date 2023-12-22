@@ -12,12 +12,6 @@ site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
 
 lan_domain_cert_name: "star.{{ lan_domain }}"
 
-# general:
-#   tld: lab
-#   domain: andromeda
-#   lan_tld: "{{ domain }}.{{ tld }}"
-#   lan_domain: "home.{{ domain }}.{{ tld }}"
-
 metallb:
   address_pool: 192.168.20.200-192.168.20.230
 
@@ -62,29 +56,14 @@ pihole:
   hostname: "pihole"
   time_zone: "America/Indiana/Indianapolis"
 
-# traefik:
-#   load_balancer_ip: 192.168.20.206
-
 gitea:
   admin_user: "root"
   admin_password: "password"
   load_balancer_ip: 192.168.20.207
   hostname: "gitea"
 
-# mattermost:
-#   load_balancer_ip: 192.168.20.208
-
 cytopia:
   load_balancer_ip: 192.168.20.209
-
-# one_password:
-#   path: "/home/ansible/1password-credentials.json"
-
-# freeipa:
-#   hostname1: "ipa-01"
-#   hostname2: "ipa-02"
-#   load_balancer_ip_ipa1: 192.168.20.210
-#   load_balancer_ip_ipa2: 192.168.20.211
 
 openldap:
   load_balancer_ip: 192.168.20.210
