@@ -1,3 +1,0 @@
-# reference https://cert-manager.io/docs/reference/cmctl/#installation
-- name: install cert-manager dependencies
-  ansible.builtin.shell: CMCTL_VERSION=0.5.0 && wget -qO- "https://github.com/oleewere/cmctl/releases/download/v${CMCTL_VERSION}/cmctl_${CMCTL_VERSION}_linux_64-bit.tar.gz" | tar -C /usr/bin -zxv cmctl
