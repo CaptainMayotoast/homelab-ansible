@@ -1,0 +1,96 @@
+- name: create 'cytopia' namespace
+  kubernetes.core.k8s:
+    name: cytopia
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# https://mattadam.com/2023/01/24/running-a-dns-server-in-k3s/
+- name: configure cytopia (env vars)
+  kubernetes.core.k8s:
+    name: cytopia
+    state: present
+    namespace: cytopia
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: dns
+      spec:
+        selector:
+          matchLabels:
+            app: dns
+        replicas: 2
+        template:
+          metadata:
+            labels:
+              app: dns
+          spec:
+            containers:
+            - name: dns
+              image: cytopia/bind
+              ports:
+              - containerPort: 53
+              env:
+              - name: DNS_PTR
+                value: > 
+                  {{ jenkins.load_balancer_ip }}={{ jenkins.hostname }}.{{ lan_domain }}, 
+                  {{ kubernetes_dashboard.load_balancer_ip }}={{ kubernetes_dashboard.hostname }}.{{ lan_domain }}, 
+                  {{ longhorn.load_balancer_ip }}={{ longhorn.hostname }}.{{ lan_domain }}, 
+                  {{ pihole.load_balancer_ip }}={{ pihole.hostname }}.{{ lan_domain }}, 
+                  {{ gitea.load_balancer_ip }}={{ gitea.hostname }}.{{ lan_domain }}
+              - name: DNS_A
+                value: >
+                  {{ jenkins.hostname }}.{{ lan_domain }}={{ jenkins.load_balancer_ip }}, 
+                  {{ kubernetes_dashboard.hostname }}.{{ lan_domain }}={{ kubernetes_dashboard.load_balancer_ip }}, 
+                  {{ longhorn.hostname }}.{{ lan_domain }}={{ longhorn.load_balancer_ip }}, 
+                  {{ pihole.hostname }}.{{ lan_domain }}={{ pihole.load_balancer_ip }}, 
+                  {{ gitea.hostname }}.{{ lan_domain }}={{ gitea.load_balancer_ip }}
+              - name: ALLOW_QUERY
+                value: any
+              - name: DOCKER_LOGS
+                value: '1'
+
+- name: configure cytopia (udp)
+  kubernetes.core.k8s:
+    name: cytopia
+    state: present
+    namespace: cytopia
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: dns-service-udp
+        annotations:
+          metallb.universe.tf/allow-shared-ip: "dnskey"
+      spec:
+        selector:
+          app: dns
+        ports:
+          - protocol: UDP
+            port: 53
+            targetPort: 53
+        type: LoadBalancer
+        loadBalancerIP: "{{ cytopia.load_balancer_ip }}"
+
+- name: configure cytopia (tcp)
+  kubernetes.core.k8s:
+    name: cytopia
+    state: present
+    namespace: cytopia
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: dns-service-tcp
+        annotations:
+          metallb.universe.tf/allow-shared-ip: "dnskey"
+      spec:
+        selector:
+          app: dns
+        ports:
+          - protocol: TCP
+            port: 53
+            targetPort: 53
+        type: LoadBalancer
+        loadBalancerIP: "{{ cytopia.load_balancer_ip }}"

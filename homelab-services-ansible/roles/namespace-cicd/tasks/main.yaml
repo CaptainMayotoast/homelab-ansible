@@ -1,0 +1,65 @@
+- name: create 'cicd' namespace
+  kubernetes.core.k8s:
+    name: cicd
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: create 'jenkins' service account in 'cicd' namespace
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: jenkins
+
+- name: grant the 'jenkins' service account the 'edit' cluster role
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: jenkins-sa-role
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: edit
+      subjects:
+      - kind: ServiceAccount
+        name: jenkins
+
+- name: fetch 'jenkins' service account details from 'cicd' namespace
+  kubernetes.core.k8s_info:
+    kind: ServiceAccount
+    namespace: cicd
+    name: jenkins
+  register: sa_jenkins
+
+- name: create 'jenkins' token secret in 'cicd' namespace
+  kubernetes.core.k8s:
+    state: present
+    namespace: cicd
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: jenkins
+        annotations:
+          kubernetes.io/service-account.name: "jenkins"
+      type: kubernetes.io/service-account-token
+      data:
+
+- name: get jenkins token details from 'cicd' namespace
+  kubernetes.core.k8s_info:
+    kind: Secret
+    namespace: cicd
+    name: jenkins
+  register: jenkins_token_data
+
+- name: set fact of jenkins token secret from 'cicd' namespace
+  set_fact:
+    jenkins_token: "{{ jenkins_token_data.resources[0].data.token | b64decode }}"

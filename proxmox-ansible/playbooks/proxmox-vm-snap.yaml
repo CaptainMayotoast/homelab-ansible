@@ -1,0 +1,35 @@
+- hosts: localhost
+  gather_facts: yes
+  module_defaults:
+      # community.general.proxmox_vm_info:
+      community.general.proxmox_snap:
+        api_host: proxmox-ctrl
+        api_token_secret: 5282e493-d185-407b-ae0e-6b73a3cd8f76
+        api_token_id: ansible-token
+        api_user: ansible@pve
+
+  tasks:
+    - name: Create new container snapshot and keep only the 4 newest snapshots
+      community.general.proxmox_snap:
+        vmid: 100
+        state: present
+        snapname: save-state-before-tools-deployment
+        retention: 4
+    - name: Create new container snapshot and keep only the 4 newest snapshots
+      community.general.proxmox_snap:
+        vmid: 101
+        state: present
+        snapname: save-state-before-tools-deployment
+        retention: 4
+    - name: Create new container snapshot and keep only the 4 newest snapshots
+      community.general.proxmox_snap:
+        vmid: 102
+        state: present
+        snapname: save-state-before-tools-deployment
+        retention: 4
+    - name: Create new container snapshot and keep only the 4 newest snapshots
+      community.general.proxmox_snap:
+        vmid: 103
+        state: present
+        snapname: save-state-before-tools-deployment
+        retention: 4

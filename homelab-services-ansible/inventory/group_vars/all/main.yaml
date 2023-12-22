@@ -1,0 +1,94 @@
+timezone: America/New_York
+
+validate_certs: false
+
+tld: lab
+domain: andromeda
+lan_tld: "{{ domain }}.{{ tld }}"
+lan_domain: "home.{{ domain }}.{{ tld }}"
+
+site_admin_email: "schwartz_alex@pm.me" # "{{ vault_site_admin_email }}"
+site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
+
+lan_domain_cert_name: "star.{{ lan_domain }}"
+
+# general:
+#   tld: lab
+#   domain: andromeda
+#   lan_tld: "{{ domain }}.{{ tld }}"
+#   lan_domain: "home.{{ domain }}.{{ tld }}"
+
+metallb:
+  address_pool: 192.168.20.200-192.168.20.230
+
+jenkins:
+  admin_username: admin
+  admin_password: 1234qwer!@#$QWER
+  load_balancer_ip: 192.168.20.200
+  hostname: "jenkins"
+  install_plugins:
+    - configuration-as-code:1700.v6f448841296e              # https://plugins.jenkins.io/configuration-as-code/
+    - git:5.2.0                                             # https://plugins.jenkins.io/git/
+    - job-dsl:1.85                                          # https://plugins.jenkins.io/job-dsl/
+    - kubernetes:4029.v5712230ccb_f8                        # https://plugins.jenkins.io/kubernetes/
+    - kubernetes-credentials-provider:1.234.vf3013b_35f5b_a # https://plugins.jenkins.io/kubernetes-credentials-provider/
+    - pipeline-stage-view:2.33                              # https://plugins.jenkins.io/pipeline-stage-view/
+    - workflow-aggregator:596.v8c21c963d92d                 # https://plugins.jenkins.io/workflow-aggregator/
+
+docker_hub:
+  username: mayotoast2222
+  password: txv2etc@btg6ZVA.fuc
+
+ghcr:
+  username: my_user
+  password: my_password
+
+kubernetes_dashboard:
+  load_balancer_ip: 192.168.20.201
+  hostname: "kubedash"
+  manifest_url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+longhorn:
+  load_balancer_ip: 192.168.20.202
+  hostname: "longhorn"
+
+metrics_server:
+  enabled: true
+
+pihole:
+  admin_password: "P@ssw0rd"
+  home_dns: 192.168.10.1
+  load_balancer_ip: 192.168.20.205 # keep this static, since it will be handed out with OpnSense DHCP 
+  hostname: "pihole"
+  time_zone: "America/Indiana/Indianapolis"
+
+# traefik:
+#   load_balancer_ip: 192.168.20.206
+
+gitea:
+  admin_user: "root"
+  admin_password: "password"
+  load_balancer_ip: 192.168.20.207
+  hostname: "gitea"
+
+# mattermost:
+#   load_balancer_ip: 192.168.20.208
+
+cytopia:
+  load_balancer_ip: 192.168.20.209
+
+# one_password:
+#   path: "/home/ansible/1password-credentials.json"
+
+# freeipa:
+#   hostname1: "ipa-01"
+#   hostname2: "ipa-02"
+#   load_balancer_ip_ipa1: 192.168.20.210
+#   load_balancer_ip_ipa2: 192.168.20.211
+
+openldap:
+  load_balancer_ip: 192.168.20.210
+  ldap_admin_username: "admin"
+  ldap_admin_password: "password"
+  ldap_users: "user0,user1"
+  ldap_user_passwords: "password0,password1"

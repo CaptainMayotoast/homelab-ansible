@@ -1,0 +1,127 @@
+- name: create 'jenkins' namespace
+  kubernetes.core.k8s:
+    name: jenkins
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: create Jenkins login username and password as a secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: jenkins-secret
+      data:
+        jenkins-admin-password: "{{ jenkins.admin_password | b64encode }}"
+        jenkins-admin-user: "{{ jenkins.admin_username | b64encode }}"
+      type: Opaque
+
+- name: create secret text that will get synced into a Jenkins credential using kubernetes-credentials-provider Jenkins plugin
+  kubernetes.core.k8s:
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: k8s-auth-token-for-namespace-cicd
+        labels:
+          "jenkins.io/credentials-type": "secretText"
+        annotations:
+          "jenkins.io/credentials-description" : "jenkins service account token (ns: cicd)"
+      stringData:
+        text: "{{ jenkins_token }}"
+      type: Opaque
+
+- name: create docker hub registry secret that will get synced into a Jenkins credential using kubernetes-credentials-provider Jenkins plugin
+  kubernetes.core.k8s:
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: docker-hub-registry-secret
+        labels:
+          "jenkins.io/credentials-type": "usernamePassword"
+        annotations:
+          "jenkins.io/credentials-description" : "docker hub registry credentials"
+      stringData:
+        username: "{{ docker_hub.username }}"
+        password: "{{ docker_hub.password }}"
+      type: Opaque
+
+- name: add jenkins helm repo
+  kubernetes.core.helm_repository:
+    name: jenkins
+    repo_url: https://charts.jenkins.io
+
+# TODO what to do here? should it be purged? probably not
+# - name: purge jenkins
+#   kubernetes.core.helm:
+#     name: jenkins
+#     namespace: jenkins
+#     state: absent
+#     wait: true
+
+- name: install jenkins
+  kubernetes.core.helm:
+    name: jenkins
+    namespace: jenkins
+    chart_ref: jenkins/jenkins
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    values:
+      controller:
+        adminSecret: true
+        jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
+        serviceType: LoadBalancer
+        servicePort: 80
+        loadBalancerIP: "{{ jenkins.load_balancer_ip }}"
+        admin:
+          existingSecret: jenkins-secret
+        installPlugins:
+          "{{ jenkins.install_plugins }}"
+        JCasC:
+          configScripts:
+            jenkins-casc-configs: |
+              jenkins:
+                systemMessage: Lab - Get building!
+                clouds:
+                  - kubernetes:
+                      containerCap: 10
+                      containerCapStr: "10"
+                      credentialsId: "k8s-auth-token-for-namespace-cicd"
+                      jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
+                      jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:80"
+                      name: "cicd"
+                      namespace: "cicd"
+                      serverUrl: "https://kubernetes.default"
+                      skipTlsVerify: true
+              jobs:
+                - script: >
+                    pipelineJob('go-sample') {
+                      description("An example Jenkins pipeline that:\n\t  - checks out code from https://github.com/markperdue/go-sample.git\n\t  - builds the go source code into a container\n\t  - publishes the container to a registry\n\t  - deploys the application to your homelab cluster using the included helm chart\n\nHit 'Build Now' to trigger an intial run of the build job.\nAfter the first run, click 'Build with Parameters' for all the options!")
+                      definition {
+                        cpsScm {
+                          scm {
+                            git {
+                              remote { url('https://github.com/markperdue/go-sample.git') }
+                              branches('master')
+                              scriptPath('Jenkinsfile')
+                              extensions { }
+                              lightweight(true)
+                            }
+                          }
+                        }
+                      }
+                    }
+      persistence:
+        enabled: true
+        storageClass: longhorn
+      rbac:
+        readSecrets: true

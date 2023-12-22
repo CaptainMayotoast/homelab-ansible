@@ -1,0 +1,103 @@
+- name: create 'gitea' namespace
+  kubernetes.core.k8s:
+    name: gitea
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: add gitea helm repo
+  kubernetes.core.helm_repository:
+    name: gitea-charts
+    repo_url: https://dl.gitea.com/charts/
+
+- name: install gitea
+  kubernetes.core.helm:
+    name: gitea
+    namespace: gitea
+    chart_ref: gitea-charts/gitea
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    values:
+      gitea:
+        # admin:
+        #   username: "{{ gitea.admin_user }}"
+        #   password: "{{ gitea.admin_password }}"
+        #   email: "gitea@local.domain" # needed ?
+
+        metrics:
+          enabled: true
+
+        # ldap:
+        #   - name: "{{ lan_domain }}_LDAP"
+        #     securityProtocol: unencrypted # or 'ldaps'
+        #     host: openldap.default.svc.cluster.local
+        #     port: 1389
+        #     # host: "{{ openldap.load_balancer_ip }}"
+        #     # port: 389 # or 636 (SSL LDAP)
+        #     userSearchBase: "dc=example,dc=org" # ou=users,dn={{ domain }},dn={{ tld }}
+        #     #userFilter:
+        #     #adminFilter:
+        #     #emailAttribute: mail
+        #     bindDn: "cn={{ openldap.ldap_admin_username }},dc=example,dc=org" # uid=svc_ldaplookup,cn=users,cn=accounts,dn=auth,dn={{ domain }},dn={{ tld }}
+        #     bindPassword: "{{ openldap.ldap_admin_password }}"
+        #     usernameAttribute: uid
+        #     #publicSSHKeyAttribute:
+
+        persistence:
+          enabled: true     
+          storageClass: longhorn
+
+        # postgresql:
+        #   persistence:
+        #     enabled: true
+        #     storageClass: longhorn
+
+        service:
+          http:
+            port: 3000
+            type: LoadBalancer
+            loadBalancerIP: "{{ gitea.load_balancer_ip }}"
+            annotations:
+              metallb.universe.tf/allow-shared-ip: gitea-svc
+
+
+# # currently using Bitnami Gitea https://artifacthub.io/packages/helm/bitnami/gitea
+# # also consider an alternative way to install via helm and Ansible: https://www.lachlanlife.net/posts/2023-01-gitea/
+# - name: install gitea
+#   kubernetes.core.helm:
+#     name: gitea
+#     namespace: gitea
+#     chart_ref: "oci://registry-1.docker.io/bitnamicharts/gitea"
+#     create_namespace: false
+#     # purge: yes
+#     update_repo_cache: yes
+#     values:
+#       adminUsername: "{{ gitea.admin_user }}"
+#       adminPassword: "{{ gitea.admin_password }}"
+
+#       image:
+#         debug: true
+
+#       # # TODO - try https://artifacthub.io/packages/helm/gitea/gitea/2.2.0
+#       # ldap:
+#       #   - name: "{{ lan_domain }}_LDAP"
+#       #     securityProtocol: unencrypted # or 'ldaps'
+#       #     uri: ldap://openldap.default.svc.cluster.local:1389
+#       #     # host: "{{ openldap.load_balancer_ip }}"
+#       #     # port: 389 # or 636 (SSL LDAP)
+#       #     userSearchBase: "dc=example,dc=org" # ou=users,dn={{ domain }},dn={{ tld }}
+#       #     #userFilter:
+#       #     #adminFilter:
+#       #     #emailAttribute: mail
+#       #     bindDn: "cn={{ openldap.ldap_admin_username }},dc=example,dc=org" # uid=svc_ldaplookup,cn=users,cn=accounts,dn=auth,dn={{ domain }},dn={{ tld }}
+#       #     bindPassword: "{{ openldap.ldap_admin_password }}"
+#       #     usernameAttribute: uid
+#       #     #publicSSHKeyAttribute:
+
+#       persistence:
+#         enabled: true
+#         storageClass: longhorn
+
+#       service:
+#         loadBalancerIP: "{{ gitea.load_balancer_ip }}"

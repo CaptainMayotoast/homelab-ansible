@@ -1,0 +1,25 @@
+- name: install metrics server
+  kubernetes.core.k8s:
+    state: present
+    namespace: kube-system
+    definition: '{{ item }}'
+  with_items: '{{ lookup("url", "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml", split_lines=False) | from_yaml_all | list }}'
+  when: metrics_server.enabled == true and item is not none
+
+- name: patch metrics server deployment to use insecure-tls and InternalIP address type
+  kubernetes.core.k8s_json_patch:
+    kind: Deployment
+    namespace: kube-system
+    name: metrics-server
+    patch:
+      - op: replace
+        path: /spec/template/spec/containers/0/args
+        value: [
+          --cert-dir=/tmp,
+          --secure-port=4443,
+          --kubelet-insecure-tls,
+          --kubelet-preferred-address-types=InternalIP,
+          --kubelet-use-node-status-port,
+          --metric-resolution=15s
+        ]
+  when: metrics_server.enabled == true

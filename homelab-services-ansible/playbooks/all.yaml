@@ -1,0 +1,20 @@
+- import_playbook: pre-reqs.yaml
+- import_playbook: metallb.yaml
+- import_playbook: longhorn.yaml
+- import_playbook: cytopia.yaml # DNS
+- import_playbook: openldap.yaml
+# - import_playbook: freeipa.yaml
+# - import_playbook: 1password-dependencies.yaml
+# - import_playbook: 1password.yaml
+# - import_playbook: externaldns.yaml
+- import_playbook: cert-manager.yaml
+- import_playbook: gitea.yaml
+# - import_playbook: mattermost.yaml
+# - import_playbook: ingress-nginx.yaml
+# - import_playbook: traefik.yaml
+# - import_playbook: traefik-dashboard-dependencies.yaml
+# - import_playbook: traefik-dashboard.yaml
+- import_playbook: pihole.yaml
+- import_playbook: jenkins.yaml
+- import_playbook: kubernetes-dashboard.yaml
+- import_playbook: metrics-server.yaml

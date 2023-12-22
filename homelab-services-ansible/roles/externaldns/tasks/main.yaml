@@ -1,0 +1,161 @@
+- name: create 'externaldns' namespace
+  kubernetes.core.k8s:
+    name: externaldns
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# - name: externaldns pihole password
+#   # https://github.com/kubernetes-sigs/extdns/blob/master/docs/tutorials/pihole.md
+#   kubernetes.core.k8s:
+#     state: present
+#     namespace: externaldns
+#     definition:
+#       apiVersion: v1
+#       kind: Secret
+#       metadata:
+#         name: externaldns-pihole-secret
+#       stringData:
+#         # https://spacelift.io/blog/kubernetes-secrets#creating-secrets-using-a-manifest-file
+#         externaldns-pihole-password: "{{ pihole.admin_password }}"
+#       type: Opaque
+
+- name: establish service account
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: extdns
+
+- name: rbac auth
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: extdns
+      rules:
+      - apiGroups: [""]
+        resources: ["services","endpoints","pods"]
+        verbs: ["get","watch","list"]
+      - apiGroups: ["extensions","networking.k8s.io"]
+        resources: ["ingresses"]
+        verbs: ["get","watch","list"]
+      - apiGroups: [""]
+        resources: ["nodes"]
+        verbs: ["list","watch"]
+
+- name: cluster role binding (viewer)
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: extdns-viewer
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: extdns
+      subjects:
+      - kind: ServiceAccount
+        name: extdns
+        namespace: externaldns
+
+- name: deployment
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: extdns
+      spec:
+        strategy:
+          type: Recreate
+        selector:
+          matchLabels:
+            app: extdns
+        template:
+          metadata:
+            labels:
+              app: extdns
+          spec:
+            serviceAccountName: extdns
+            containers:
+            - name: extdns
+              image: registry.k8s.io/external-dns/external-dns:v0.13.6
+              # If authentication is disabled and/or you didn't create
+              # a secret, you can remove this block.
+              # envFrom:
+              # - secretRef:
+              #     # Change this if you gave the secret a different name
+              #     name: externaldns-pihole-secret
+              args:
+              - --source=service
+              - --source=ingress
+              # Pihole only supports A/CNAME records so there is no mechanism to track ownership.
+              # You don't need to set this flag, but if you leave it unset, you will receive warning
+              # logs when ExternalDNS attempts to create TXT records.
+              - --registry=noop
+              # IMPORTANT: If you have records that you manage manually in Pi-hole, set
+              # the policy to upsert-only so they do not get deleted.
+              - --policy=upsert-only
+              - --provider=pihole
+              # Change this to the actual address of your Pi-hole web server
+              - --pihole-password=P@ssw0rd
+              - --pihole-server=192.168.20.205
+              - --pihole-tls-skip-verify
+              - --log-level=debug
+            securityContext:
+              fsGroup: 65534 # For ExternalDNS to be able to read Kubernetes token files      
+    
+- name: ingress (example)
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: foo
+      spec:
+        ingressClassName: nginx
+        rules:
+        - host: foo.bar.com
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: foo
+                  port:
+                    number: 80
+
+- name: service (example)
+  kubernetes.core.k8s:
+    state: present
+    namespace: externaldns
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nginx
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: nginx.external-dns-test.andromeda.com
+      spec:
+        type: LoadBalancer
+        ports:
+        - port: 80
+          name: http
+          targetPort: 80
+        selector:
+          app: nginx    

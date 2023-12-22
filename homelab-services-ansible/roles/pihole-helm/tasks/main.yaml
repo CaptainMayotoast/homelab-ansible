@@ -1,0 +1,65 @@
+- name: create 'pihole' namespace
+  kubernetes.core.k8s:
+    name: pihole
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: add pihole helm repo
+  kubernetes.core.helm_repository:
+    name: pihole
+    repo_url: https://mojo2600.github.io/pihole-kubernetes/
+
+- name: install pihole
+  # https://artifacthub.io/packages/helm/mojo2600/pihole
+  # https://technicatgor.github.io/posts/SelfHostPiholeOnKubernetes/
+  kubernetes.core.helm:
+    name: pihole
+    namespace: pihole
+    chart_ref: "mojo2600/pihole"
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    values:
+      hostname: "pihole"
+      serviceDns:
+        type: LoadBalancer 
+        port: 53
+        loadBalancerIP: "{{ pihole.load_balancer_ip }}"
+        annotations:
+          metallb.universe.tf/allow-shared-ip: pihole-svc
+
+      serviceWeb:
+        http:
+          enabled: true
+          port: 80
+        https:
+          enabled: true
+          port: 443
+        type: LoadBalancer
+        loadBalancerIP: "{{ pihole.load_balancer_ip }}"
+        annotations:
+          metallb.universe.tf/allow-shared-ip: pihole-svc
+
+      persistentVolumeClaim:
+        enabled: true
+        accessModes:
+          - ReadWriteOnce
+        size: "2Gi"
+        storageClass: "longhorn"
+
+      adminPassword: "{{ pihole.admin_password }}"
+
+      extraEnvVars:
+        TZ: "{{ pihole.time_zone }}"
+
+      DNS1: "{{ pihole.home_dns }}"
+      DNS2: "{{ cytopia.load_balancer_ip }}"
+
+      podDnsConfig:
+        enabled: true
+        policy: "None"
+        nameservers:
+        - 127.0.0.1
+        - "{{ pihole.home_dns }}" # OpnSense DNS
+        - "{{ cytopia.load_balancer_ip }}" # cluster DNS
