@@ -1,6 +1,0 @@
-- name: install traefik dashboard dependencies (apt)
-  apt:
-    update_cache: yes
-    name:
-      - apache2-utils
-    state: present
