@@ -620,7 +620,7 @@
       apiVersion: networking.istio.io/v1beta1
       kind: VirtualService
       metadata:
-        name: nginx
+        name: gitea
         namespace: gitea
       spec:
         hosts:
@@ -630,7 +630,7 @@
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute  
         http:
           # https://github.com/istio/istio/issues/19599
-          - name: "gitea-test"
+          - name: "gitea routes"
             match:
             - uri:
                 prefix: /
@@ -641,6 +641,6 @@
                 # use 'kubectl run alpine --rm -ti --image alpine /bin/sh' to debug from within cluster
                 host: gitea-http.gitea.svc.cluster.local
                 port:
-                  number: 4000
+                  number: 4000 # this matches the port defined in the helm chart
 
 

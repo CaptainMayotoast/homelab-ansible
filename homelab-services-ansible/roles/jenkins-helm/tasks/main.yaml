@@ -129,3 +129,58 @@
         storageClass: longhorn
       rbac:
         readSecrets: true
+
+- name: install a jenkins-gateway
+  kubernetes.core.k8s:
+    name: jenkins-gateway
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: networking.istio.io/v1alpha3
+      kind: Gateway
+      metadata:
+        name: jenkins-gateway
+        namespace: jenkins
+      spec:
+        selector:
+          # Use the default Ingress Gateway installed by Istio
+          istio: ingressgateway
+        servers:
+        - port:
+            number: 80
+            name: http
+            protocol: HTTP
+          hosts:
+          - "jenkins.andromeda.lab"
+
+- name: define a VirtualService for jenkins
+  kubernetes.core.k8s:
+    name: virtualservice-jenkins
+    state: present
+    namespace: jenkins
+    definition:
+      apiVersion: networking.istio.io/v1beta1
+      kind: VirtualService
+      metadata:
+        name: jenkins
+        namespace: jenkins
+      spec:
+        hosts:
+          - "jenkins.andromeda.lab"
+        gateways:
+          - jenkins-gateway
+        # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute  
+        http:
+          # https://github.com/istio/istio/issues/19599
+          - name: "jenkins routes"
+            match:
+            - uri:
+                prefix: /
+            - uri:
+                regex: '^.*\.(ico|png|jpg|js|woff|svg|woff2|eot|ttf|css)$'
+            route:
+            - destination:
+                # use 'kubectl run alpine --rm -ti --image alpine /bin/sh' to debug from within cluster
+                host: jenkins.jenkins.svc.cluster.local
+                port:
+                  number: 80 # this matches the port defined above

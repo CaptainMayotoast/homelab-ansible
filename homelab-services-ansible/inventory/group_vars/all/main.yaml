@@ -59,8 +59,8 @@ pihole:
 gitea:
   admin_user: "root"
   admin_password: "password"
-  load_balancer_ip: 192.168.20.207
+  # load_balancer_ip: 192.168.20.207
   hostname: "gitea"
-  
+
 istio:
   load_balancer_ip: 192.168.20.210
