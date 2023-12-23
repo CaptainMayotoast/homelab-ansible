@@ -609,7 +609,7 @@
             name: http
             protocol: HTTP
           hosts:
-          - "*"
+          - "gitea.andromeda.lab"
 
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:
@@ -624,7 +624,7 @@
         namespace: gitea
       spec:
         hosts:
-          - "*"
+          - "gitea.andromeda.lab"
         gateways:
           - gitea-gateway
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute  
