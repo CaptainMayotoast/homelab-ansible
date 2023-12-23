@@ -2,7 +2,6 @@
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
 - import_playbook: istio.yaml
-- import_playbook: cytopia.yaml # DNS
 - import_playbook: gitea.yaml
 - import_playbook: pihole.yaml
 - import_playbook: jenkins.yaml

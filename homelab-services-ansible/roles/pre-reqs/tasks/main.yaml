@@ -19,6 +19,7 @@
 - name: install helm diff
   kubernetes.core.helm_plugin:
     plugin_path: https://github.com/databus23/helm-diff
+    plugin_version: v3.8.1
     state: present
 
 - name: install pip

@@ -58,7 +58,7 @@
         TZ: "{{ pihole.time_zone }}"
 
       DNS1: "{{ pihole.home_dns }}"
-      DNS2: "{{ cytopia.load_balancer_ip }}"
+      # DNS2: "{{ cytopia.load_balancer_ip }}"
 
       podDnsConfig:
         enabled: true
@@ -66,4 +66,4 @@
         nameservers:
         - 127.0.0.1
         - "{{ pihole.home_dns }}" # OpnSense DNS
-        - "{{ cytopia.load_balancer_ip }}" # cluster DNS
+        # - "{{ cytopia.load_balancer_ip }}" # cluster DNS

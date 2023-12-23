@@ -61,9 +61,6 @@ gitea:
   admin_password: "password"
   load_balancer_ip: 192.168.20.207
   hostname: "gitea"
-
-cytopia:
-  load_balancer_ip: 192.168.20.209
-
+  
 istio:
   load_balancer_ip: 192.168.20.210
