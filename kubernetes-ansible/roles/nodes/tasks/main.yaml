@@ -1,0 +1,11 @@
+- name: generate join command
+  shell: kubeadm token create --print-join-command
+  register: kubeadm_join_cmd
+  delegate_to: "{{ groups['control_planes'][0] }}"
+
+- set_fact:
+    kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
+
+- name: join worker node to cluster
+  shell: "{{ kubeadm_join }}"
+  become: true
