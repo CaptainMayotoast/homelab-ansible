@@ -263,8 +263,8 @@
       ## @param serviceAccount.annotations Custom annotations for the ServiceAccount
       ## @param serviceAccount.labels Custom labels for the ServiceAccount
       serviceAccount:
-        create: false
-        name: ""
+        create: true
+        name: "gitea"
         automountServiceAccountToken: false
         imagePullSecrets: []
         # - name: private-registry-access
@@ -588,112 +588,59 @@
       ##
       extraDeploy: []
 
+- name: install a gitea-gateway
+  kubernetes.core.k8s:
+    name: gitea-gateway
+    state: present
+    namespace: gitea
+    definition:
+      apiVersion: networking.istio.io/v1alpha3
+      kind: Gateway
+      metadata:
+        name: gitea-gateway
+        namespace: gitea
+      spec:
+        selector:
+          # Use the default Ingress Gateway installed by Istio
+          istio: ingressgateway
+        servers:
+        - port:
+            number: 80
+            name: http
+            protocol: HTTP
+          hosts:
+          - "*"
+
+- name: define a VirtualService for Gitea
+  kubernetes.core.k8s:
+    name: virtualservice-gitea
+    state: present
+    namespace: gitea
+    definition:
+      apiVersion: networking.istio.io/v1beta1
+      kind: VirtualService
+      metadata:
+        name: nginx
+        namespace: gitea
+      spec:
+        hosts:
+          - "*"
+        gateways:
+          - gitea-gateway
+        # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute  
+        http:
+          # https://github.com/istio/istio/issues/19599
+          - name: "gitea-test"
+            match:
+            - uri:
+                prefix: /
+            - uri:
+                regex: '^.*\.(ico|png|jpg|js|woff|svg|woff2|eot|ttf|css)$'
+            route:
+            - destination:
+                # use 'kubectl run alpine --rm -ti --image alpine /bin/sh' to debug from within cluster
+                host: gitea-http.gitea.svc.cluster.local
+                port:
+                  number: 4000
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      # gitea:
-      # admin:
-      #   username: "{{ gitea.admin_user }}"
-      #   password: "{{ gitea.admin_password }}"
-      #   email: "gitea@local.domain" # needed ?
-
-      # metrics:
-      #   enabled: true
-
-      # ldap:
-      #   - name: "{{ lan_domain }}_LDAP"
-      #     securityProtocol: unencrypted # or 'ldaps'
-      #     host: openldap.default.svc.cluster.local
-      #     port: 1389
-      #     # host: "{{ openldap.load_balancer_ip }}"
-      #     # port: 389 # or 636 (SSL LDAP)
-      #     userSearchBase: "dc=example,dc=org" # ou=users,dn={{ domain }},dn={{ tld }}
-      #     #userFilter:
-      #     #adminFilter:
-      #     #emailAttribute: mail
-      #     bindDn: "cn={{ openldap.ldap_admin_username }},dc=example,dc=org" # uid=svc_ldaplookup,cn=users,cn=accounts,dn=auth,dn={{ domain }},dn={{ tld }}
-      #     bindPassword: "{{ openldap.ldap_admin_password }}"
-      #     usernameAttribute: uid
-      #     #publicSSHKeyAttribute:
-
-      # persistence:
-      #   enabled: true     
-      #   storageClass: longhorn
-
-      # # postgresql:
-      # #   persistence:
-      # #     enabled: true
-      # #     storageClass: longhorn
-
-      # service:
-      #   http:
-      #     type: LoadBalancer
-      #     loadBalancerIP: "{{ gitea.load_balancer_ip }}"
-      #     port: 4000
-      #     externalIPs:
-      #       - "{{ gitea.load_balancer_ip }}"
-      #     # annotations:
-          #   metallb.universe.tf/allow-shared-ip: gitea-svc
-
-
-# # currently using Bitnami Gitea https://artifacthub.io/packages/helm/bitnami/gitea
-# # also consider an alternative way to install via helm and Ansible: https://www.lachlanlife.net/posts/2023-01-gitea/
-# - name: install gitea
-#   kubernetes.core.helm:
-#     name: gitea
-#     namespace: gitea
-#     chart_ref: "oci://registry-1.docker.io/bitnamicharts/gitea"
-#     create_namespace: false
-#     # purge: yes
-#     update_repo_cache: yes
-#     values:
-#       adminUsername: "{{ gitea.admin_user }}"
-#       adminPassword: "{{ gitea.admin_password }}"
-
-#       image:
-#         debug: true
-
-#       # # TODO - try https://artifacthub.io/packages/helm/gitea/gitea/2.2.0
-#       # ldap:
-#       #   - name: "{{ lan_domain }}_LDAP"
-#       #     securityProtocol: unencrypted # or 'ldaps'
-#       #     uri: ldap://openldap.default.svc.cluster.local:1389
-#       #     # host: "{{ openldap.load_balancer_ip }}"
-#       #     # port: 389 # or 636 (SSL LDAP)
-#       #     userSearchBase: "dc=example,dc=org" # ou=users,dn={{ domain }},dn={{ tld }}
-#       #     #userFilter:
-#       #     #adminFilter:
-#       #     #emailAttribute: mail
-#       #     bindDn: "cn={{ openldap.ldap_admin_username }},dc=example,dc=org" # uid=svc_ldaplookup,cn=users,cn=accounts,dn=auth,dn={{ domain }},dn={{ tld }}
-#       #     bindPassword: "{{ openldap.ldap_admin_password }}"
-#       #     usernameAttribute: uid
-#       #     #publicSSHKeyAttribute:
-
-#       persistence:
-#         enabled: true
-#         storageClass: longhorn
-
-#       service:
-#         loadBalancerIP: "{{ gitea.load_balancer_ip }}"
