@@ -65,9 +65,5 @@ gitea:
 cytopia:
   load_balancer_ip: 192.168.20.209
 
-openldap:
+istio:
   load_balancer_ip: 192.168.20.210
-  ldap_admin_username: "admin"
-  ldap_admin_password: "password"
-  ldap_users: "user0,user1"
-  ldap_user_passwords: "password0,password1"
