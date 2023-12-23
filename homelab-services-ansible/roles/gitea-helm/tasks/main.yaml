@@ -132,10 +132,10 @@
         ## @param service.http.loadBalancerSourceRanges Source range filter for http loadbalancer
         ## @param service.http.annotations HTTP service annotations
         http:
-          type: LoadBalancer
+          type: ClusterIP
           port: 4000
-          clusterIP: None
-          loadBalancerIP: "{{ gitea.load_balancer_ip }}"
+          clusterIP: 
+          # loadBalancerIP: "{{ gitea.load_balancer_ip }}"
           nodePort:
           externalTrafficPolicy:
           externalIPs:
@@ -157,10 +157,10 @@
         ## @param service.ssh.loadBalancerSourceRanges Source range filter for ssh loadbalancer
         ## @param service.ssh.annotations SSH service annotations
         ssh:
-          type: LoadBalancer
+          type: ClusterIP
           port: 22
-          clusterIP: None
-          loadBalancerIP: "{{ gitea.load_balancer_ip }}"
+          clusterIP: 
+          # loadBalancerIP: "{{ gitea.load_balancer_ip }}"
           nodePort:
           externalTrafficPolicy:
           externalIPs:
