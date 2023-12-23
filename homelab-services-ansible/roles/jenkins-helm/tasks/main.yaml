@@ -63,14 +63,6 @@
     name: jenkins
     repo_url: https://charts.jenkins.io
 
-# TODO what to do here? should it be purged? probably not
-# - name: purge jenkins
-#   kubernetes.core.helm:
-#     name: jenkins
-#     namespace: jenkins
-#     state: absent
-#     wait: true
-
 - name: install jenkins
   kubernetes.core.helm:
     name: jenkins
