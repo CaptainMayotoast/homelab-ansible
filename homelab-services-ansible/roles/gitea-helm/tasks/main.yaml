@@ -588,28 +588,28 @@
       ##
       extraDeploy: []
 
-- name: install a gitea-gateway
-  kubernetes.core.k8s:
-    name: gitea-gateway
-    state: present
-    namespace: gitea
-    definition:
-      apiVersion: networking.istio.io/v1alpha3
-      kind: Gateway
-      metadata:
-        name: gitea-gateway
-        namespace: gitea
-      spec:
-        selector:
-          # Use the default Ingress Gateway installed by Istio
-          istio: ingressgateway
-        servers:
-        - port:
-            number: 80
-            name: http
-            protocol: HTTP
-          hosts:
-          - "gitea.andromeda.lab"
+# - name: install a gitea-gateway
+#   kubernetes.core.k8s:
+#     name: gitea-gateway
+#     state: present
+#     namespace: gitea
+#     definition:
+#       apiVersion: networking.istio.io/v1alpha3
+#       kind: Gateway
+#       metadata:
+#         name: gitea-gateway
+#         namespace: gitea
+#       spec:
+#         selector:
+#           # Use the default Ingress Gateway installed by Istio
+#           istio: ingressgateway
+#         servers:
+#         - port:
+#             number: 80
+#             name: http
+#             protocol: HTTP
+#           hosts:
+#           - "gitea.andromeda.lab"
 
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:
@@ -626,7 +626,8 @@
         hosts:
           - "gitea.andromeda.lab"
         gateways:
-          - gitea-gateway
+        # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
+          - shared-gateway.istio-system.svc.cluster.local
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute  
         http:
           # https://github.com/istio/istio/issues/19599
