@@ -1,9 +1,10 @@
 - import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
+- import_playbook: cert-manager.yaml
 - import_playbook: istio.yaml
 - import_playbook: gitea.yaml
-- import_playbook: pihole.yaml
 - import_playbook: jenkins.yaml
+- import_playbook: pihole.yaml
 - import_playbook: kubernetes-dashboard.yaml
 - import_playbook: metrics-server.yaml

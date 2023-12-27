@@ -3,6 +3,7 @@
 # Istio base (https://artifacthub.io/packages/helm/istio-official/base)
 #
 
+# created in certmanager yaml
 - name: create 'istio-system' namespace
   kubernetes.core.k8s:
     name: istio-system
@@ -55,24 +56,92 @@
       service:
         type: LoadBalancer
         ports:
-        - name: status-port
-          port: 15021
-          protocol: TCP
-          targetPort: 15021
-        - name: http2
-          port: 80
-          protocol: TCP
-          targetPort: 80
-        - name: https
-          port: 443
-          protocol: TCP
-          targetPort: 443
+          - name: status-port
+            port: 15021
+            protocol: TCP
+            targetPort: 15021
+          - name: http2
+            port: 80
+            protocol: TCP
+            targetPort: 80
+          - name: https
+            port: 443
+            protocol: TCP
+            targetPort: 443
         loadBalancerIP: "{{ istio.load_balancer_ip }}"
 
-# ##################################################
-# #
-# # Istio install the actual gateway (https://github.com/datastrophic/kubernetes-deployment)
-# #
+##################################################
+#
+# Cert-manager certificate creation
+#
+
+# TODO - remove some hard coded arguments
+- name: transfer secrets file to helm host
+  delegate_to: localhost
+  shell: |
+    rsync /home/ansible/homelab/homelab-services-ansible/roles/cert-manager-helm/secrets/cert-manager-creds.json ansible@192.168.20.119:~
+
+# added for idempotency (if no secret set, no big deal)
+- name: delete current acme-dns secret
+  shell: |
+    kubectl delete secret -n istio-system acme-dns --ignore-not-found
+
+# create the secret to build the cert with API credentials from https://www.getlocalcert.net/
+- name: create acme-dns secret (getlocalcert.net API creds)
+  shell: |
+    kubectl create secret -n istio-system generic acme-dns --from-file ~/cert-manager-creds.json
+
+# https://docs.getlocalcert.net/acme-clients/cert-manager/
+- name: define a ClusterIssuer for Istio Gateway
+  kubernetes.core.k8s:
+    name: clusterissuer-istio
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: letsencrypt-prod-cluster
+        namespace: istio-system
+      spec:
+        acme:
+          email: mayotoast2222@duck.com
+          privateKeySecretRef:
+            name: letsencrypt-prod-cluster
+            # current API endpoint is production (commented version is staging version)
+          server: https://acme-v02.api.letsencrypt.org/directory # https://acme-staging-v02.api.letsencrypt.org/directory
+          solvers:
+            - dns01:
+                acmeDNS:
+                  host: https://api.getlocalcert.net/api/v1/acme-dns-compat
+                  accountSecretRef:
+                    name: acme-dns
+                    key: cert-manager-creds.json
+
+- name: define a certificate for Istio Gateway
+  kubernetes.core.k8s:
+    name: cert-istio
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: cert-manager-istio
+        namespace: istio-system
+      spec:
+        dnsNames:
+          - andromeda.localhostcert.net
+          # A wildcard cert as well (use quotes)
+          - "*.andromeda.localhostcert.net"
+        secretName: cert-manager-istio
+        issuerRef:
+          name: letsencrypt-prod-cluster # metadata name from ClusterIssuer
+
+##################################################
+#
+# Istio install the actual gateway (https://github.com/datastrophic/kubernetes-deployment)
+#
 
 - name: install a shared-gateway to be reused by other deployments
   kubernetes.core.k8s:
@@ -86,16 +155,27 @@
         name: shared-gateway
         namespace: istio-system
       spec:
+        meshConfig:
+          accessLogFile: /dev/stdout
         selector:
           # Use the default Ingress Gateway installed by Istio
           istio: ingressgateway
         servers:
-        - port:
-            number: 80
-            name: http
-            protocol: HTTP
-          hosts:
-          - "*"
-          # - "gitea.andromeda.lab"
-          # - "jenkins.andromeda.lab"
-          
+          - port:
+              number: 80
+              name: http
+              protocol: HTTP
+            hosts:
+              - "*"
+            tls:
+              httpsRedirect: true
+          - port:
+              number: 443
+              name: https
+              protocol: HTTPS
+            hosts:
+              - "gitea.andromeda.localhostcert.net"
+              - "jenkins.andromeda.localhostcert.net"
+            tls:
+              mode: SIMPLE
+              credentialName: cert-manager-istio

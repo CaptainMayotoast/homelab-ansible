@@ -2,16 +2,14 @@ timezone: America/New_York
 
 validate_certs: false
 
-tld: lab
+tld: localhostcert.net
 domain: andromeda
-lan_tld: "{{ domain }}.{{ tld }}"
-lan_domain: "home.{{ domain }}.{{ tld }}"
+lan_tld: "{{ domain }}.{{ tld }}" # andromeda.localhostcert.net
 
 site_admin_email: "schwartz_alex@pm.me" # "{{ vault_site_admin_email }}"
 site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
 
-lan_domain_cert_name: "star.{{ lan_domain }}"
-
+# IP addresses to provide internal to this cluster (these must be considered as static IPs to the router)
 metallb:
   address_pool: 192.168.20.200-192.168.20.230
 
@@ -59,8 +57,8 @@ pihole:
 gitea:
   admin_user: "root"
   admin_password: "password"
-  # load_balancer_ip: 192.168.20.207
   hostname: "gitea"
 
+# the gateway should be able to handle all traffic in an HTTPS way, and the Istio Gateway itself needs an IP
 istio:
   load_balancer_ip: 192.168.20.210
