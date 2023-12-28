@@ -1,6 +1,7 @@
 - import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
+- import_playbook: router_dns.yaml
 - import_playbook: cert-manager.yaml
 - import_playbook: istio.yaml
 - import_playbook: gitea.yaml

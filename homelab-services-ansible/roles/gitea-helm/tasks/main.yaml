@@ -135,7 +135,6 @@
           type: ClusterIP
           port: 4000
           clusterIP:
-          # loadBalancerIP: "{{ gitea.load_balancer_ip }}"
           nodePort:
           externalTrafficPolicy:
           externalIPs:
@@ -157,10 +156,10 @@
         ## @param service.ssh.loadBalancerSourceRanges Source range filter for ssh loadbalancer
         ## @param service.ssh.annotations SSH service annotations
         ssh:
-          type: ClusterIP
+          type: LoadBalancer
           port: 22
           clusterIP:
-          # loadBalancerIP: "{{ gitea.load_balancer_ip }}"
+          loadBalancerIP: "{{ gitea.ssh_load_balancer_ip }}"
           nodePort:
           externalTrafficPolicy:
           externalIPs:
@@ -189,7 +188,7 @@
           # kubernetes.io/ingress.class: nginx
           # kubernetes.io/tls-acme: "true"
         hosts:
-          - host: git.example.com
+          - host: gitea-ssh.andromeda.localhostcert.net
             paths:
               - path: /
                 pathType: Prefix
@@ -420,8 +419,8 @@
           #  APP_NAME: "Gitea: Git with a cup of tea"
           #  RUN_MODE: dev
           server:
-            SSH_PORT: 22 # rootful image
-            SSH_LISTEN_PORT: 2222 # rootless image
+            #SSH_PORT: 22 # rootful image
+            SSH_LISTEN_PORT: 2022 # rootless image
         #
         #  security:
         #    PASSWORD_COMPLEXITY: spec
@@ -627,3 +626,12 @@
                     attempts: 3
                     perTryTimeout: 5s
                     retryOn: gateway-error,connect-failure,refused-stream
+        # # https://discuss.istio.io/t/virtual-service-with-https-and-ssh/10275                     
+        # tcp:
+        #   - match:
+        #       - port: 2222
+        #     route:
+        #       - destination:
+        #           host: gitea-ssh.default.svc.cluster.local
+        #           port:
+        #             number: 2222

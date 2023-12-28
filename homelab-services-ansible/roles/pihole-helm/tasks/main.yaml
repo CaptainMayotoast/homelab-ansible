@@ -29,7 +29,7 @@
       serviceDns:
         type: LoadBalancer 
         port: 53
-        loadBalancerIP: "{{ pihole.load_balancer_ip }}"
+        loadBalancerIP: "{{ pihole.dns_load_balancer_ip }}"
         annotations:
           metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -41,7 +41,7 @@
           enabled: true
           port: 443
         type: LoadBalancer
-        loadBalancerIP: "{{ pihole.load_balancer_ip }}"
+        loadBalancerIP: "{{ pihole.dns_load_balancer_ip }}"
         annotations:
           metallb.universe.tf/allow-shared-ip: pihole-svc
 

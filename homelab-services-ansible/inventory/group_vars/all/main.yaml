@@ -9,6 +9,11 @@ lan_tld: "{{ domain }}.{{ tld }}" # andromeda.localhostcert.net
 site_admin_email: "schwartz_alex@pm.me" # "{{ vault_site_admin_email }}"
 site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
 
+# firewall information
+firewall_hostname: 'router' 
+firewall_ip: 192.168.10.1
+firewall_credential_file: '/home/ansible/.secret/router.andromeda_apikey.txt'
+
 # IP addresses to provide internal to this cluster (these must be considered as static IPs to the router)
 metallb:
   address_pool: 192.168.20.200-192.168.20.230
@@ -16,16 +21,15 @@ metallb:
 jenkins:
   admin_username: admin
   admin_password: 1234qwer!@#$QWER
-  load_balancer_ip: 192.168.20.200
-  hostname: "jenkins"
+  hostname: jenkins
   install_plugins:
-    - configuration-as-code:1700.v6f448841296e              # https://plugins.jenkins.io/configuration-as-code/
-    - git:5.2.0                                             # https://plugins.jenkins.io/git/
-    - job-dsl:1.85                                          # https://plugins.jenkins.io/job-dsl/
-    - kubernetes:4029.v5712230ccb_f8                        # https://plugins.jenkins.io/kubernetes/
+    - configuration-as-code:1700.v6f448841296e # https://plugins.jenkins.io/configuration-as-code/
+    - git:5.2.0 # https://plugins.jenkins.io/git/
+    - job-dsl:1.85 # https://plugins.jenkins.io/job-dsl/
+    - kubernetes:4029.v5712230ccb_f8 # https://plugins.jenkins.io/kubernetes/
     - kubernetes-credentials-provider:1.234.vf3013b_35f5b_a # https://plugins.jenkins.io/kubernetes-credentials-provider/
-    - pipeline-stage-view:2.33                              # https://plugins.jenkins.io/pipeline-stage-view/
-    - workflow-aggregator:596.v8c21c963d92d                 # https://plugins.jenkins.io/workflow-aggregator/
+    - pipeline-stage-view:2.33 # https://plugins.jenkins.io/pipeline-stage-view/
+    - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
 
 docker_hub:
   username: mayotoast2222
@@ -50,7 +54,7 @@ metrics_server:
 pihole:
   admin_password: "P@ssw0rd"
   home_dns: 192.168.10.1
-  load_balancer_ip: 192.168.20.205 # keep this static, since it will be handed out with OpnSense DHCP 
+  dns_load_balancer_ip: 192.168.20.205 # keep this static, since it will be handed out with OpnSense DHCP
   hostname: "pihole"
   time_zone: "America/Indiana/Indianapolis"
 
@@ -58,6 +62,8 @@ gitea:
   admin_user: "root"
   admin_password: "password"
   hostname: "gitea"
+  ssh_load_balancer_ip: 192.168.20.211
+  ssh_hostname: "gitea-ssh"
 
 # the gateway should be able to handle all traffic in an HTTPS way, and the Istio Gateway itself needs an IP
 istio:

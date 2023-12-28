@@ -63,6 +63,8 @@
     name: jenkins
     repo_url: https://charts.jenkins.io
 
+# values: 
+# https://artifacthub.io/packages/helm/jenkinsci/jenkins?modal=values
 - name: install jenkins
   kubernetes.core.helm:
     name: jenkins
@@ -74,10 +76,10 @@
     values:
       controller:
         adminSecret: true
-        jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
-        serviceType: LoadBalancer
+        # jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
+        serviceType: ClusterIP #LoadBalancer
         servicePort: 80
-        loadBalancerIP: "{{ jenkins.load_balancer_ip }}"
+        # loadBalancerIP: "{{ jenkins.load_balancer_ip }}"
         admin:
           existingSecret: jenkins-secret
         installPlugins: "{{ jenkins.install_plugins }}"
