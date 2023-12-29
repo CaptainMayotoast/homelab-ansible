@@ -1,0 +1,97 @@
+# oauth2-proxy and keycloak are all in the same namespace
+- name: create 'oauth' namespace
+  kubernetes.core.k8s:
+    name: oauth
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# redis is needed for oauth2-proxy, as it is the session storage backend
+# https://baptistout.net/posts/passwordless-authentication-webauthn-keycloak-istio/
+
+- name: add bitnami helm repo (contains redis as an installation candidate)
+  kubernetes.core.helm_repository:
+    name: bitnami
+    repo_url: https://charts.bitnami.com/bitnami
+
+- name: install redis
+  kubernetes.core.helm:
+    name: redis-oauth2-proxy
+    namespace: oauth
+    chart_ref: bitnami/redis
+    chart_version: 18.6.1
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    # no additional configuration may be necessary
+    # values:
+
+# now proceed to oauth2-proxy installation
+
+- name: add oauth2-proxy helm repo
+  kubernetes.core.helm_repository:
+    name: oauth2-proxy
+    repo_url: https://oauth2-proxy.github.io/manifests
+
+- name: install oauth2-proxy
+  kubernetes.core.helm:
+    name: oauth2-proxy
+    namespace: oauth
+    chart_ref: oauth2-proxy/oauth2-proxy
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    # https://artifacthub.io/packages/helm/oauth2-proxy/oauth2-proxy?modal=values
+    values:
+      config:
+        # OAuth client ID
+        clientID: "gloo"
+        # OAuth client secret
+        clientSecret: "MsQLofFupVbCi6iYMYJ2qrVn6rR8e2jN"
+        # Create a new secret with the following command
+        # openssl rand -base64 32 | head -c 32 | base64
+        # Use an existing secret for OAuth2 credentials (see secret.yaml for required fields)
+        # Example:
+        # existingSecret: secret
+        cookieSecret: "DV0Y+mXgqT4Duitw16amd8TZjl/bQVou"
+        # The name of the cookie that oauth2-proxy will create
+        # If left empty, it will default to the release name
+        cookieName: ""
+        # Default configuration, to be overridden
+        configFile: |-
+          provider = "oidc"
+          provider_display_name = "KEYCLOAK"
+          oidc_issuer_url = "https://{{ keycloak.keycloak_dn }}/realms/{{ keycloak.keycloak_realm }}"
+          login_url = "https://{{ keycloak.keycloak_dn }}/realms/{{ keycloak.keycloak_realm }}/protocol/openid-connect/auth"
+          redeem_url = "https://{{ keycloak.keycloak_dn }}/realms/{{ keycloak.keycloak_realm }}/protocol/openid-connect/token"
+          profile_url = "https://{{ keycloak.keycloak_dn }}/realms/{{ keycloak.keycloak_realm }}/protocol/openid-connect/userinfo"
+          validate_url = "https://{{ keycloak.keycloak_dn }}/realms/{{ keycloak.keycloak_realm }}/protocol/openid-connect/userinfo"
+          ssl_insecure_skip_verify = true
+          skip_provider_button = true
+          email_domains = ["*"]
+          insecure_oidc_allow_unverified_email = true
+          scope = "email profile openid"
+          oidc_extra_audiences = ["gloo"]
+          cookie_secure = true
+          pass_host_header = true
+          pass_user_headers = true
+          standard_logging = true
+          auth_logging = true
+          request_logging = true
+          upstreams = ["static://200"]
+          set_xauthrequest = true
+          set_authorization_header = true # oddly pass the id_token as Authorization header
+      sessionStorage:
+        # Can be one of the supported session storage cookie|redis
+        type: redis
+        redis:
+          # Name of the Kubernetes secret containing the redis & redis sentinel password values (see also "sessionStorage.redis.passwordKey")
+          existingSecret: ""
+          # Redis password value. Applicable for all Redis configurations. Taken from redis subchart secret if not set. "sessionStorage.redis.existingSecret" takes precedence
+          password: ""
+          # Key of the Kubernetes secret data containing the redis password value
+          passwordKey: "redis-password"
+          # Can be one of standalone|cluster|sentinel
+          clientType: "standalone"
+          standalone:
+            connectionUrl: "redis://redis.oauth.svc.cluster.local:6379" # I am not exactly sure what the text before "oauth.svc" should be

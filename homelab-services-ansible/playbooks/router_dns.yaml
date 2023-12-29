@@ -1,0 +1,42 @@
+# Ansible to control OpnSense Unbound settings
+
+# https://opnsense.ansibleguy.net/en/latest/modules/unbound_host.html
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/ansibleguy.opnsense.all:
+        firewall: "{{ firewall_hostname }}"
+        api_credential_file: "{{ firewall_credential_file }}"
+        ssl_verify: false
+        debug: false
+
+  tasks:
+    - name: Add MetalLB address to DNS override - gitea-ssh
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ gitea.ssh_hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ gitea.ssh_load_balancer_ip }}"
+
+    - name: Add MetalLB address to DNS override - gitea
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ gitea.hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ istio.load_balancer_ip }}"
+
+    - name: Add MetalLB address to DNS override - jenkins
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ jenkins.hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ istio.load_balancer_ip }}"        
+
+    - name: Add MetalLB address to DNS override - api gateway
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ gateway.hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ gateway.load_balancer_ip }}"       
+
+    - name: Add MetalLB address to DNS override - keycloak
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ keycloak.hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ keycloak.load_balancer_ip }}"       

@@ -38,6 +38,26 @@
     create_namespace: false
     # purge: yes
     update_repo_cache: yes
+    values:
+      # values accepted: https://artifacthub.io/packages/helm/istio-official/istiod?modal=values&path=meshConfig
+      # https://istio.io/latest/docs/reference/config/istio.mesh.v1alpha1/
+      # guide: https://baptistout.net/posts/passwordless-authentication-webauthn-keycloak-istio/
+      meshConfig:
+        accessLogFile: /dev/stdout
+        extensionProviders:
+          - name: "webauthn"
+            envoyExtAuthzHttp:
+              service: "oauth2-proxy.oauth.svc.cluster.local"
+              port: 80
+              includeHeadersInCheck:
+                - x-user
+                - authorization
+                - cookie
+              headersToUpstreamOnAllow:
+                - authorization
+                - x-auth-request-user
+                - x-auth-request-email
+                - x-auth-request-preferred-username
 
 ##################################################
 #
@@ -174,8 +194,38 @@
               name: https
               protocol: HTTPS
             hosts:
-              - "gitea.andromeda.localhostcert.net"
-              - "jenkins.andromeda.localhostcert.net"
+              - "*.{{ lan_tld }}" # connected to keycloak integration
+              # - "gitea.andromeda.localhostcert.net"
+              # - "jenkins.andromeda.localhostcert.net"
             tls:
               mode: SIMPLE
               credentialName: cert-manager-istio
+
+##################################################
+#
+# Istio AuthorizationPolicy (https://baptistout.net/posts/passwordless-authentication-webauthn-keycloak-istio/)
+#
+
+- name: configure an AuthorizationPolicy
+  kubernetes.core.k8s:
+    name: istio-AuthorizationPolicy
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: security.istio.io/v1beta1
+      kind: AuthorizationPolicy
+      metadata:
+        name: webauthn
+        namespace: istio-system
+      spec:
+        selector:
+          matchLabels:
+            app: istio-ingressgateway # apply to the Istio Ingress Gateway pod
+        action: CUSTOM
+        provider:
+          name: "webauthn"
+        rules:
+        - to:
+          - operation:
+              hosts: ["{{ gateway.api_gateway_dn }}"] # only for the API domain
+              
