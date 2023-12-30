@@ -1,18 +1,12 @@
-# K8s infrastructure
 - import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
 - import_playbook: router_dns.yaml
 - import_playbook: cert-manager.yaml
 - import_playbook: istio.yaml
-- import_playbook: keycloak.yaml
-- import_playbook: oauth2-proxy.yaml
-
-# engineer facing services
+- import_playbook: keycloak-oauth2-proxy.yaml
 - import_playbook: gitea.yaml
 - import_playbook: jenkins.yaml
 - import_playbook: pihole.yaml
 - import_playbook: kubernetes-dashboard.yaml
-
-# metrics and telemetry
 - import_playbook: metrics-server.yaml

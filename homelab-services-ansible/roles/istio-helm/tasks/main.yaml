@@ -195,6 +195,8 @@
               protocol: HTTPS
             hosts:
               - "*.{{ lan_tld }}" # connected to keycloak integration
+              # - "api.andromeda.localhostcert.net"
+              # - "auth.andromeda.localhostcert.net"
               # - "gitea.andromeda.localhostcert.net"
               # - "jenkins.andromeda.localhostcert.net"
             tls:
