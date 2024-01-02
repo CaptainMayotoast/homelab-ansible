@@ -293,16 +293,16 @@
         "clientId": "gloo",
         "name": "",
         "description": "",
-        "rootUrl": "https://api.andromeda.localhostcert.net/",
+        "rootUrl": "https://api.bco.runlocal.dev/",
         "adminUrl": "",
-        "baseUrl": "https://api.andromeda.localhostcert.net/",
+        "baseUrl": "https://api.bco.runlocal.dev/",
         "surrogateAuthRequired": false,
         "enabled": true,
         "alwaysDisplayInConsole": false,
         "clientAuthenticatorType": "client-secret",
         "secret": "**********",
         "redirectUris": [
-          "https://api.andromeda.localhostcert.net/*"
+          "https://api.bco.runlocal.dev/*"
         ],
         "webOrigins": [],
         "notBefore": 0,

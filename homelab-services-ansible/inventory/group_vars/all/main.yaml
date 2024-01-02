@@ -71,10 +71,11 @@ istio:
 
 keycloak:
   hostname: "auth"
-  keycloak_dn: "auth.andromeda.localhostcert.net"
+  keycloak_dn: "{{ keycloak.hostname }}.{{ lan_tld }}"
   keycloak_realm: "homelab-users"
   load_balancer_ip: 192.168.20.212 # for debugging configuration
 
 gateway:
-  api_gateway_dn: "api.andromeda.localhostcert.net"
+  load_balancer_ip: 192.168.20.210
   hostname: "api"
+  api_gateway_dn: "{{ gateway.hostname }}.{{ lan_tld }}"

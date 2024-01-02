@@ -33,10 +33,10 @@
       ansibleguy.opnsense.unbound_host:
         hostname: "{{ gateway.hostname }}"
         domain: "{{ lan_tld }}"
-        value: "{{ istio.load_balancer_ip }}"       
+        value: "{{ gateway.load_balancer_ip }}"       
 
     - name: Add MetalLB address to DNS override - keycloak
       ansibleguy.opnsense.unbound_host:
         hostname: "{{ keycloak.hostname }}"
         domain: "{{ lan_tld }}"
-        value: "{{ istio.load_balancer_ip }}"       
+        value: "{{ keycloak.load_balancer_ip }}"       

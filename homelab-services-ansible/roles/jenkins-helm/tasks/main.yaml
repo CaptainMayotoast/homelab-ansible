@@ -159,8 +159,7 @@
         namespace: jenkins
       spec:
         hosts:
-          - "{{ gateway.api_gateway_dn }}"
-          #- "jenkins.andromeda.localhostcert.net"
+          - "jenkins.andromeda.localhostcert.net"
         gateways:
           # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
           - shared-gateway.istio-system.svc.cluster.local
@@ -175,10 +174,6 @@
                 host: oauth2-proxy.oauth.svc.cluster.local
                 port:
                   number: 80
-                retries:
-                  attempts: 3
-                  perTryTimeout: 5s
-                  retryOn: gateway-error,connect-failure,refused-stream
           # https://github.com/istio/istio/issues/19599
           - name: "jenkins routes"
             match:
