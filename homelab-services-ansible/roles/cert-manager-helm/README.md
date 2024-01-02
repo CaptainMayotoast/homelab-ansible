@@ -3,7 +3,7 @@
 ## Overview
 
 - Folders: `secrets` and `tasks`
-- `secrets` should hold an API credentials file created from "https://console.getlocalcert.net/describe-zone?zone_name=andromeda.localhostcert.net."
+- `secrets` should hold an API credentials file created from "https://console.getlocalcert.net/describe-zone?zone_name=milkyway.localhostcert.net."
     - getlocalcert.net is used to provide a cert for a homelab where the homelab owner does not want or need to have a proper domain registered to him
     - resources: 
         - https://news.ycombinator.com/item?id=38036203

@@ -144,7 +144,7 @@
 #             name: http
 #             protocol: HTTP
 #           hosts:
-#           - "jenkins.andromeda.lab"
+#           - "jenkins.milkyway.lab"
 
 - name: define a VirtualService for jenkins
   kubernetes.core.k8s:
@@ -159,7 +159,7 @@
         namespace: jenkins
       spec:
         hosts:
-          - "jenkins.andromeda.localhostcert.net"
+          - "jenkins.milkyway.localhostcert.net"
         gateways:
           # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
           - shared-gateway.istio-system.svc.cluster.local

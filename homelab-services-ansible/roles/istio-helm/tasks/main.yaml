@@ -131,9 +131,9 @@
         namespace: istio-system
       spec:
         dnsNames:
-          - andromeda.localhostcert.net
+          - milkyway.localhostcert.net
           # A wildcard cert as well (use quotes)
-          - "*.andromeda.localhostcert.net"
+          - "*.milkyway.localhostcert.net"
         secretName: cert-manager-istio
         issuerRef:
           name: letsencrypt-prod-cluster # metadata name from ClusterIssuer
@@ -174,8 +174,8 @@
               name: https
               protocol: HTTPS
             hosts:
-              - "gitea.andromeda.localhostcert.net"
-              - "jenkins.andromeda.localhostcert.net"
+              - "gitea.milkyway.localhostcert.net"
+              - "jenkins.milkyway.localhostcert.net"
             tls:
               mode: SIMPLE
               credentialName: cert-manager-istio

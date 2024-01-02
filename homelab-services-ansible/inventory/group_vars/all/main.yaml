@@ -3,8 +3,8 @@ timezone: America/New_York
 validate_certs: false
 
 tld: localhostcert.net
-domain: andromeda
-lan_tld: "{{ domain }}.{{ tld }}" # andromeda.localhostcert.net
+domain: milkyway
+lan_tld: "{{ domain }}.{{ tld }}" # milkyway.localhostcert.net
 
 site_admin_email: "schwartz_alex@pm.me" # "{{ vault_site_admin_email }}"
 site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
@@ -12,7 +12,7 @@ site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
 # firewall information
 firewall_hostname: 'router' 
 firewall_ip: 192.168.10.1
-firewall_credential_file: '/home/ansible/.secret/router.andromeda_apikey.txt'
+firewall_credential_file: '/home/ansible/.secret/router.milkyway_apikey.txt'
 
 # IP addresses to provide internal to this cluster (these must be considered as static IPs to the router)
 metallb:
