@@ -28,3 +28,9 @@
         hostname: "{{ jenkins.hostname }}"
         domain: "{{ lan_tld }}"
         value: "{{ istio.load_balancer_ip }}"      
+
+    - name: Add MetalLB address to DNS override - keycloak
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ keycloak.hostname }}"
+        domain: "{{ lan_tld }}"
+        value: "{{ istio.load_balancer_ip }}"   

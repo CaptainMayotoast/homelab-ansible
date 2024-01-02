@@ -68,3 +68,9 @@ gitea:
 # the gateway should be able to handle all traffic in an HTTPS way, and the Istio Gateway itself needs an IP
 istio:
   load_balancer_ip: 192.168.20.210
+
+keycloak:
+  hostname: "auth"
+  keycloak_dn: "auth.{{ domain }}.{{ tld }}"
+  keycloak_realm: "homelab-users"
+  load_balancer_ip: 192.168.20.212 # for debugging configuration

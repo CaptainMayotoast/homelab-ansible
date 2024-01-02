@@ -1,0 +1,74 @@
+##################################################
+#
+# Istio base (https://artifacthub.io/packages/helm/istio-official/base)
+#
+
+# created in certmanager yaml
+- name: create 'istio-system' namespace
+  kubernetes.core.k8s:
+    name: istio-system
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: add 'istio-base' helm repo
+  kubernetes.core.helm_repository:
+    name: istio-base
+    repo_url: https://istio-release.storage.googleapis.com/charts
+
+- name: install 'istio-base'
+  kubernetes.core.helm:
+    name: istio-base
+    namespace: istio-system
+    chart_ref: "istio/base"
+    chart_version: "{{ istio_base_version }}"
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+
+##################################################
+#
+# Istiod (https://artifacthub.io/packages/helm/istio-official/istiod)
+#
+
+- name: install 'istiod'
+  kubernetes.core.helm:
+    name: istiod
+    namespace: istio-system
+    chart_ref: "istio/istiod"
+    chart_version: "{{ istio_control_plane_version }}"
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+
+##################################################
+#
+# Istio Gateway (https://artifacthub.io/packages/helm/istio-official/gateway)
+#
+
+- name: install 'istio-ingressgateway'
+  kubernetes.core.helm:
+    name: istio-ingressgateway
+    namespace: istio-system
+    chart_ref: "istio/gateway"
+    chart_version: "{{ istio_gateway_version }}"
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    values:
+      service:
+        type: LoadBalancer
+        ports:
+          - name: status-port
+            port: 15021
+            protocol: TCP
+            targetPort: 15021
+          - name: http2
+            port: 80
+            protocol: TCP
+            targetPort: 80
+          - name: https
+            port: 443
+            protocol: TCP
+            targetPort: 443
+        loadBalancerIP: "{{ istio.load_balancer_ip }}"

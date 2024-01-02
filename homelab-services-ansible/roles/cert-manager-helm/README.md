@@ -4,6 +4,20 @@
 
 - Folders: `secrets` and `tasks`
 - `secrets` should hold an API credentials file created from "https://console.getlocalcert.net/describe-zone?zone_name=milkyway.localhostcert.net."
+    - The contents of the file looks [like](https://docs.getlocalcert.net/acme-clients/cert-manager/#api-keys)
+    ```json
+    {
+        "<yourSubdomain>.localhostcert.net": {
+            "username": "<yourApiKeyId>",
+            "password": "<yourApiKeySecret>",
+            "fulldomain": "<yourSubdomain>.localhostcert.net",
+            "subdomain": "<yourSubdomain>",
+            "server_url": "https://api.getlocalcert.net/api/v1/acme-dns-compat",
+            "allowfrom": []
+        }
+    }
+
+    ```
     - getlocalcert.net is used to provide a cert for a homelab where the homelab owner does not want or need to have a proper domain registered to him
     - resources: 
         - https://news.ycombinator.com/item?id=38036203
