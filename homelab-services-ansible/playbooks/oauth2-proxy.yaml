@@ -1,3 +1,0 @@
-- hosts: "helm"
-  roles:
-    - role: 'roles/oauth2-proxy-helm'

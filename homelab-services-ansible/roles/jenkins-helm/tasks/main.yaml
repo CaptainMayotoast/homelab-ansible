@@ -165,15 +165,6 @@
           - shared-gateway.istio-system.svc.cluster.local
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
         http:
-          - name: "oauth2 to oauth2-proxy" 
-            match: # route requests starting with /oauth2 to oauth2-proxy
-            - uri:
-                prefix: /oauth2/*
-            route:
-            - destination:
-                host: oauth2-proxy.oauth.svc.cluster.local
-                port:
-                  number: 80
           # https://github.com/istio/istio/issues/19599
           - name: "jenkins routes"
             match:
