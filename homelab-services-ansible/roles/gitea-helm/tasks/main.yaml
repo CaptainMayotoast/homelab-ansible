@@ -142,8 +142,8 @@
           ipFamilyPolicy:
           ipFamilies:
           loadBalancerSourceRanges: []
-          annotations:
-            metallb.universe.tf/allow-shared-ip: test
+          # annotations:
+          #   metallb.universe.tf/allow-shared-ip: test
         ## @param service.ssh.type Kubernetes service type for ssh traffic
         ## @param service.ssh.port Port number for ssh traffic
         ## @param service.ssh.clusterIP ClusterIP setting for ssh autosetup for deployment is None
@@ -168,8 +168,8 @@
           ipFamilies:
           hostPort:
           loadBalancerSourceRanges: []
-          annotations:
-            metallb.universe.tf/allow-shared-ip: test
+          # annotations:
+          #   metallb.universe.tf/allow-shared-ip: test
 
       ## @section Ingress
       ## @param ingress.enabled Enable ingress
@@ -368,8 +368,8 @@
         admin:
           # existingSecret: gitea-admin-secret
           existingSecret:
-          username: gitea_admin
-          password: r8sA8CPHD9!bt6d
+          username: gitea_admin #gitea_admin
+          password: admin #r8sA8CPHD9!bt6d
           email: "gitea@local.domain"
 
         ## @param gitea.metrics.enabled Enable Gitea metrics
@@ -421,6 +421,7 @@
           #  RUN_MODE: dev
           server:
             #SSH_PORT: 22 # rootful image
+            ROOT_URL: "https://{{ gitea.gitea_dn }}"
             SSH_LISTEN_PORT: 2022 # rootless image
         #
         #  security:

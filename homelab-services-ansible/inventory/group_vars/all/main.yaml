@@ -62,6 +62,7 @@ gitea:
   admin_user: "root"
   admin_password: "password"
   hostname: "gitea"
+  gitea_dn: "gitea.{{ domain }}.{{ tld }}"
   ssh_load_balancer_ip: 192.168.20.211
   ssh_hostname: "gitea-ssh"
 
