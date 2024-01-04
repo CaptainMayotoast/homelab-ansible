@@ -20,9 +20,10 @@
           app: keycloak
       spec:
         ports:
+          # https://stackoverflow.com/questions/55741170/container-port-pods-vs-container-port-service
           - name: http
-            port: 8081
-            targetPort: 8081
+            port: 8080
+            targetPort: 8080
         selector:
           app: keycloak
         # loadBalancerIP: "{{ keycloak.load_balancer_ip }}" # for debugging
@@ -40,7 +41,7 @@
         realm.json: |
           {
             "id" : "ff140b8f-165c-4739-8e3d-9bf6a89ab408",
-            "realm" : "master",
+            "realm" : "homelab",
             "displayName" : "Keycloak",
             "displayNameHtml" : "<div class=\"kc-logo-text\"><span>Keycloak</span></div>",
             "notBefore" : 0,
@@ -94,7 +95,7 @@
                 "composites" : {
                   "realm" : [ "create-realm" ],
                   "client" : {
-                    "master-realm" : [ "manage-users", "manage-identity-providers", "view-events", "manage-realm", "view-users", "create-client", "view-clients", "query-groups", "impersonation", "view-identity-providers", "query-clients", "view-authorization", "manage-events", "view-realm", "query-users", "query-realms", "manage-clients", "manage-authorization" ]
+                    "homelab-realm" : [ "manage-users", "manage-identity-providers", "view-events", "manage-realm", "view-users", "create-client", "view-clients", "query-groups", "impersonation", "view-identity-providers", "query-clients", "view-authorization", "manage-events", "view-realm", "query-users", "query-realms", "manage-clients", "manage-authorization" ]
                   }
                 },
                 "clientRole" : false,
@@ -110,7 +111,7 @@
                 "attributes" : { }
               }, {
                 "id" : "ae2ee7e6-e21d-4d20-9b58-036978bc6cb6",
-                "name" : "default-roles-master",
+                "name" : "default-roles-homelab",
                 "description" : "${role_default-roles}",
                 "composite" : true,
                 "composites" : {
@@ -153,7 +154,7 @@
                   "containerId" : "2874f1fd-d315-4c78-b399-664dc6f84f00",
                   "attributes" : { }
                 } ],
-                "master-realm" : [ {
+                "homelab-realm" : [ {
                   "id" : "7df9b0f3-9c5a-4822-8ba1-968917584501",
                   "name" : "manage-users",
                   "description" : "${role_manage-users}",
@@ -192,7 +193,7 @@
                   "composite" : true,
                   "composites" : {
                     "client" : {
-                      "master-realm" : [ "query-users", "query-groups" ]
+                      "homelab-realm" : [ "query-users", "query-groups" ]
                     }
                   },
                   "clientRole" : true,
@@ -213,7 +214,7 @@
                   "composite" : true,
                   "composites" : {
                     "client" : {
-                      "master-realm" : [ "query-clients" ]
+                      "homelab-realm" : [ "query-clients" ]
                     }
                   },
                   "clientRole" : true,
@@ -388,7 +389,7 @@
             "groups" : [ ],
             "defaultRole" : {
               "id" : "ae2ee7e6-e21d-4d20-9b58-036978bc6cb6",
-              "name" : "default-roles-master",
+              "name" : "default-roles-homelab",
               "description" : "${role_default-roles}",
               "composite" : true,
               "clientRole" : false,
@@ -439,7 +440,7 @@
               } ],
               "disableableCredentialTypes" : [ ],
               "requiredActions" : [ ],
-              "realmRoles" : [ "admin", "default-roles-master" ],
+              "realmRoles" : [ "admin", "default-roles-homelab" ],
               "notBefore" : 0,
               "groups" : [ ]
             }, {
@@ -462,7 +463,7 @@
               } ],
               "disableableCredentialTypes" : [ ],
               "requiredActions" : [ ],
-              "realmRoles" : [ "default-roles-master" ],
+              "realmRoles" : [ "default-roles-homelab" ],
               "notBefore" : 0,
               "groups" : [ ]
             } ],
@@ -481,12 +482,12 @@
               "clientId" : "account",
               "name" : "${client_account}",
               "rootUrl" : "${authBaseUrl}",
-              "baseUrl" : "/realms/master/account/",
+              "baseUrl" : "/realms/homelab/account/",
               "surrogateAuthRequired" : false,
               "enabled" : true,
               "alwaysDisplayInConsole" : false,
               "clientAuthenticatorType" : "client-secret",
-              "redirectUris" : [ "/realms/master/account/*" ],
+              "redirectUris" : [ "/realms/homelab/account/*" ],
               "webOrigins" : [ ],
               "notBefore" : 0,
               "bearerOnly" : false,
@@ -511,12 +512,12 @@
               "clientId" : "account-console",
               "name" : "${client_account-console}",
               "rootUrl" : "${authBaseUrl}",
-              "baseUrl" : "/realms/master/account/",
+              "baseUrl" : "/realms/homelab/account/",
               "surrogateAuthRequired" : false,
               "enabled" : true,
               "alwaysDisplayInConsole" : false,
               "clientAuthenticatorType" : "client-secret",
-              "redirectUris" : [ "/realms/master/account/*" ],
+              "redirectUris" : [ "/realms/homelab/account/*" ],
               "webOrigins" : [ ],
               "notBefore" : 0,
               "bearerOnly" : false,
@@ -610,7 +611,7 @@
               "alwaysDisplayInConsole" : false,
               "clientAuthenticatorType" : "client-secret",
               "secret" : "PIQ16fmGNlbJUFKVVNkSupC7BoGt2HPQ",
-              "redirectUris" : [ "https://auth.milkyway.localhostcert.net/realms/master/protocol/openid-connect/auth/*", "https://auth.milkyway.localhostcert.net/*", "https://gitea.milkyway.localhostcert.net/*" ],
+              "redirectUris" : [ "https://auth.milkyway.localhostcert.net/realms/homelab/protocol/openid-connect/auth/*", "https://auth.milkyway.localhostcert.net/*", "https://gitea.milkyway.localhostcert.net/*" ],
               "webOrigins" : [ ],
               "notBefore" : 0,
               "bearerOnly" : false,
@@ -637,8 +638,8 @@
               "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ]
             }, {
               "id" : "76865598-92c2-44e6-8532-911f37277aad",
-              "clientId" : "master-realm",
-              "name" : "master Realm",
+              "clientId" : "homelab-realm",
+              "name" : "homelab Realm",
               "surrogateAuthRequired" : false,
               "enabled" : true,
               "alwaysDisplayInConsole" : false,
@@ -665,12 +666,12 @@
               "clientId" : "security-admin-console",
               "name" : "${client_security-admin-console}",
               "rootUrl" : "${authAdminUrl}",
-              "baseUrl" : "/admin/master/console/",
+              "baseUrl" : "/admin/homelab/console/",
               "surrogateAuthRequired" : false,
               "enabled" : true,
               "alwaysDisplayInConsole" : false,
               "clientAuthenticatorType" : "client-secret",
-              "redirectUris" : [ "/admin/master/console/*" ],
+              "redirectUris" : [ "/admin/homelab/console/*" ],
               "webOrigins" : [ "+" ],
               "notBefore" : 0,
               "bearerOnly" : false,
@@ -1939,6 +1940,8 @@
                 # https://www.mastertheboss.com/keycloak/keycloak-with-docker/
                 args: ["start-dev --import-realm"]
                 env:
+                  # https://www.keycloak.org/server/all-config
+                  # https://www.keycloak.org/server/configuration
                   - name: KEYCLOAK_ADMIN
                     value: "admin"
                   - name: KEYCLOAK_ADMIN_PASSWORD
@@ -1956,7 +1959,7 @@
                   - name: JAVA_OPTS_APPEND
                     value: "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
                   # - name: KC_HTTP_PORT
-                  #   value: "8081"
+                  #   value: "8080"
                 # https://www.keycloak.org/server/importExport
                 # https://kubernetes.io/docs/concepts/storage/volumes/
                 volumeMounts:
@@ -1964,11 +1967,11 @@
                     mountPath: /opt/keycloak/data/import
                 ports:
                   - name: http
-                    containerPort: 8081
+                    containerPort: 8080
                 readinessProbe:
                   httpGet:
-                    path: /realms/master
-                    port: 8081
+                    path: /realms/homelab
+                    port: 8080
             # https://kubernetes.io/docs/concepts/storage/volumes/
             volumes:
               - name: keycloak-init-config
@@ -2001,15 +2004,14 @@
               - destination:
                   host: keycloak.oauth.svc.cluster.local
                   port:
-                    number: 8081 # this matches the port set above for the Deployment
-                  
+                    number: 8080 # this matches the port set above for the Deployment
+
                   # https://medium.com/@in.live.in/puzzling-503s-and-istio-1bf504b9aae6
                   # this appears needed to work around HTTP 503 errors
-                  # retries:
-                  #   attempts: 3
-                  #   perTryTimeout: 5s
-                  #   retryOn: gateway-error,connect-failure,refused-stream
-
+                  retries:
+                    attempts: 3
+                    perTryTimeout: 5s
+                    retryOn: gateway-error,connect-failure,refused-stream
 # an attempt at OAuth2-proxy + webauthn integration, below
 # maybe come back to this later?
 

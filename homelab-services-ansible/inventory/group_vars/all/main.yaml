@@ -28,6 +28,7 @@ jenkins:
     - job-dsl:1.85 # https://plugins.jenkins.io/job-dsl/
     - kubernetes:4029.v5712230ccb_f8 # https://plugins.jenkins.io/kubernetes/
     - kubernetes-credentials-provider:1.234.vf3013b_35f5b_a # https://plugins.jenkins.io/kubernetes-credentials-provider/
+    - oic-auth:2.6 # https://plugins.jenkins.io/oic-auth/
     - pipeline-stage-view:2.33 # https://plugins.jenkins.io/pipeline-stage-view/
     - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
 
@@ -75,3 +76,5 @@ keycloak:
   keycloak_dn: "auth.{{ domain }}.{{ tld }}"
   keycloak_realm: "homelab-users"
   load_balancer_ip: 192.168.20.212 # for debugging configuration
+  gitea_oidc_secret: "PIQ16fmGNlbJUFKVVNkSupC7BoGt2HPQ"
+  gitea_client_id: "gitea"

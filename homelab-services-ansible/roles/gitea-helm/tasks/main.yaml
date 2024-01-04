@@ -14,6 +14,7 @@
     name: gitea-charts
     repo_url: https://dl.gitea.com/charts/
 
+# https://artifacthub.io/packages/helm/gitea/gitea
 - name: install gitea
   kubernetes.core.helm:
     name: gitea
@@ -401,18 +402,20 @@
         # Either specify inline `key` and `secret` or refer to them via `existingSecret`
         ## @param gitea.oauth OAuth configuration
         oauth:
-          []
-          # - name: 'OAuth 1'
-          #   provider:
-          #   key:
-          #   secret:
-          #   existingSecret:
-          #   autoDiscoverUrl:
-          #   useCustomUrls:
-          #   customAuthUrl:
-          #   customTokenUrl:
-          #   customProfileUrl:
-          #   customEmailUrl:
+          # https://gitea.com/gitea/helm-chart#user-content-oauth2-settings
+          # https://docs.gitea.com/administration/command-line#admin
+          - name: 'Keycloak OAuth'
+            provider: 'openidConnect'
+            key: "{{ keycloak.gitea_client_id }}" 
+            secret: "{{ keycloak.gitea_oidc_secret }}"
+            # existingSecret:
+            autoDiscoverUrl: "https://auth.{{ lan_tld }}/realms/homelab/.well-known/openid-configuration"
+            skipLocal2fa: "true"
+            # useCustomUrls:
+            # customAuthUrl:
+            # customTokenUrl:
+            # customProfileUrl:
+            # customEmailUrl:
 
         ## @param gitea.config.server.SSH_PORT SSH port for rootlful Gitea image
         ## @param gitea.config.server.SSH_LISTEN_PORT SSH port for rootless Gitea image

@@ -63,13 +63,13 @@
     name: jenkins
     repo_url: https://charts.jenkins.io
 
-# values: 
 # https://artifacthub.io/packages/helm/jenkinsci/jenkins?modal=values
 - name: install jenkins
   kubernetes.core.helm:
     name: jenkins
     namespace: jenkins
     chart_ref: jenkins/jenkins
+    chart_version: "{{ jenkins_version }}"
     create_namespace: false
     # purge: yes
     update_repo_cache: yes
@@ -85,6 +85,23 @@
         installPlugins: "{{ jenkins.install_plugins }}"
         JCasC:
           configScripts:
+            # https://community.jenkins.io/t/assist-with-oidc-example-within-jenkinsci-helm-chart/3289/2
+            # securityRealm: |
+            #   oic:
+            #     clientId: "k.vc-prod.jenkins"
+            #     clientSecret: "<hidden>"
+            #     wellKnownOpenIDConfigurationUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home"
+            #     tokenServerUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/token"
+            #     authorizationServerUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/auth"
+            #     scopes: "openid email profile offline_access"
+            #     disableSslVerification: false
+            #     endSessionEndpoint: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/logout"
+            #     escapeHatchEnabled: false
+            #     logoutFromOpenidProvider: true
+            #     userNameField: "preferred_username"
+            #     emailFieldName: "email"
+            #     groupsFieldName: "groups"
+
             jenkins-casc-configs: |
               jenkins:
                 systemMessage: Lab - Get building!

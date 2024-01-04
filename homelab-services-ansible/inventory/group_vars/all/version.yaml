@@ -11,3 +11,5 @@ istio_control_plane_version: 1.20.1
 istio_gateway_version: 1.20.1
 # keycloak
 keycloak_version: 20.0.2
+# Jenkins
+jenkins_version: 4.11.2
