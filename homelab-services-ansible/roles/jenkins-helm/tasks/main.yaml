@@ -76,6 +76,10 @@
     values:
       controller:
         adminSecret: true
+        podSecurityContextOverride:
+          runAsUser: 1000
+          runAsNonRoot: true
+          supplementalGroups: [1000]          
         # jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
         serviceType: ClusterIP #LoadBalancer
         servicePort: 80

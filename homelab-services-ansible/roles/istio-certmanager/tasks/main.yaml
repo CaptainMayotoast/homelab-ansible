@@ -3,11 +3,16 @@
 # Cert-manager certificate creation
 #
 
+- name: print hostvars
+  ansible.builtin.debug:
+    msg:
+      - "{{ groups.nodes }}"
+
 # TODO - remove some hard coded arguments
 - name: transfer secrets file to helm host
   delegate_to: localhost
   shell: |
-    rsync /home/ansible/homelab/homelab-services-ansible/roles/cert-manager-helm/secrets/cert-manager-creds.json ansible@192.168.20.119:~
+    rsync /home/ansible/homelab/homelab-services-ansible/roles/cert-manager-helm/secrets/cert-manager-creds.json ansible@{{ groups.control_planes }}:~
 
 # added for idempotency (if no secret set, no big deal)
 - name: delete current acme-dns secret

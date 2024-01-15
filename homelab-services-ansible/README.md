@@ -8,7 +8,6 @@ Ansible playbooks to install tools on a Kubernetes cluster
 - Gitea
 - PiHole
 - Jenkins
-- Cytopia (cluster DNS provider)
 
 # Quickstart
 ```
@@ -38,3 +37,7 @@ To access Jenkins, login with `admin`/`changethisP455word!`
 2. `kubectl delete namespace <namespace>`
 3. `kubectl get pods --all-namespaces -o wide`
 4. `kubectl describe svc --all-namespaces`
+
+# Resources
+
+- Reference host variables from the 'dev' file https://stackoverflow.com/questions/40027847/accessing-inventory-host-variable-in-ansible-playbook

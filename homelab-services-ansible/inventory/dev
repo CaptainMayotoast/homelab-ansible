@@ -1,10 +1,10 @@
 [control_planes]
-192.168.20.119
+192.168.20.132 node_name=ctrl
 
 [nodes]
-192.168.20.120
-192.168.20.121
-192.168.20.122
+192.168.20.133 node_name=one
+192.168.20.134 node_name=two
+192.168.20.135 node_name=three
 
 [helm]
-192.168.20.119
+192.168.20.132 node_name=ctrl

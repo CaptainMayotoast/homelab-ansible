@@ -13,7 +13,7 @@
 
 - name: add 'istio-base' helm repo
   kubernetes.core.helm_repository:
-    name: istio-base
+    name: istio
     repo_url: https://istio-release.storage.googleapis.com/charts
 
 - name: install 'istio-base'
