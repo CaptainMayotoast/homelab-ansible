@@ -26,9 +26,11 @@ jenkins:
     - configuration-as-code:1700.v6f448841296e # https://plugins.jenkins.io/configuration-as-code/
     - git:5.2.0 # https://plugins.jenkins.io/git/
     - job-dsl:1.85 # https://plugins.jenkins.io/job-dsl/
+    #- keycloak:2.3.2 # https://plugins.jenkins.io/keycloak/
+    - oic-auth:2.6
+    #- oidc-provider:47.v182a_02f5b_771
     - kubernetes:4029.v5712230ccb_f8 # https://plugins.jenkins.io/kubernetes/
     - kubernetes-credentials-provider:1.234.vf3013b_35f5b_a # https://plugins.jenkins.io/kubernetes-credentials-provider/
-    - oic-auth:2.6 # https://plugins.jenkins.io/oic-auth/
     - pipeline-stage-view:2.33 # https://plugins.jenkins.io/pipeline-stage-view/
     - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
 

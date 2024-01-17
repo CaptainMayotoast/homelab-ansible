@@ -76,19 +76,23 @@
     values:
       controller:
         adminSecret: true
+        # https://github.com/jenkinsci/helm-charts/issues/210#issuecomment-1493044000
         podSecurityContextOverride:
           runAsUser: 1000
+          fsGroup: 1000
           runAsNonRoot: true
           supplementalGroups: [1000]          
-        # jenkinsUrl: "{{ 'http://' + jenkins.load_balancer_ip }}"
+        jenkinsUrl: "https://{{ jenkins.hostname }}.{{ lan_tld }}"
         serviceType: ClusterIP #LoadBalancer
         servicePort: 80
-        # loadBalancerIP: "{{ jenkins.load_balancer_ip }}"
         admin:
           existingSecret: jenkins-secret
         installPlugins: "{{ jenkins.install_plugins }}"
         JCasC:
           configScripts:
+          # NOTE: need to put down "sub" for the field to extract user info from
+          # https://github.com/jenkinsci/oic-auth-plugin/issues/213
+          
             # https://community.jenkins.io/t/assist-with-oidc-example-within-jenkinsci-helm-chart/3289/2
             # securityRealm: |
             #   oic:
@@ -143,29 +147,6 @@
         storageClass: longhorn
       rbac:
         readSecrets: true
-
-# - name: install a jenkins-gateway
-#   kubernetes.core.k8s:
-#     name: jenkins-gateway
-#     state: present
-#     namespace: jenkins
-#     definition:
-#       apiVersion: networking.istio.io/v1alpha3
-#       kind: Gateway
-#       metadata:
-#         name: jenkins-gateway
-#         namespace: jenkins
-#       spec:
-#         selector:
-#           # Use the default Ingress Gateway installed by Istio
-#           istio: ingressgateway
-#         servers:
-#         - port:
-#             number: 80
-#             name: http
-#             protocol: HTTP
-#           hosts:
-#           - "jenkins.milkyway.lab"
 
 - name: define a VirtualService for jenkins
   kubernetes.core.k8s:

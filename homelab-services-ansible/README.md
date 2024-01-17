@@ -41,3 +41,8 @@ To access Jenkins, login with `admin`/`changethisP455word!`
 # Resources
 
 - Reference host variables from the 'dev' file https://stackoverflow.com/questions/40027847/accessing-inventory-host-variable-in-ansible-playbook
+
+# Development notes
+
+Jan 14th, 2024
+- I figured out how to see which initialization (init) container may be failing.  Gitea and Jenkins were both failing upon startup.  To do fine the actual error message(s), run `kubectl describe pod <podname, i.e. jenkins-0> -n <namespace of pod>`, several containers will show in the describe output.  Then, run `kubectl logs <failing pod name, i.e. jenkins-0> -n <namespace> -c <init container, i.e. init>`.

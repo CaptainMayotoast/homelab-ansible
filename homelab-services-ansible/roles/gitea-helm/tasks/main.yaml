@@ -370,7 +370,7 @@
           # existingSecret: gitea-admin-secret
           existingSecret:
           username: gitea_admin #gitea_admin
-          password: admin #r8sA8CPHD9!bt6d
+          password: r8sA8CPHD9!bt6d
           email: "gitea@local.domain"
 
         ## @param gitea.metrics.enabled Enable Gitea metrics

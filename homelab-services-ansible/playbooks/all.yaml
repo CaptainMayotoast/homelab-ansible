@@ -8,6 +8,7 @@
 # to avoid making too many API calls to Let's Encrypt
 - import_playbook: istio-certmanager.yaml
 - import_playbook: istio-gateway.yaml
+- import_playbook: keycloak.yaml
 - import_playbook: gitea.yaml
 - import_playbook: jenkins.yaml
 #- import_playbook: pihole.yaml
