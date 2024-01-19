@@ -290,7 +290,7 @@
         create: true
         mount: true
         claimName: gitea-shared-storage
-        size: 10Gi
+        size: 70Gi
         accessModes:
           - ReadWriteOnce
         labels: {}
