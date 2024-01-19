@@ -90,28 +90,38 @@
         installPlugins: "{{ jenkins.install_plugins }}"
         JCasC:
           configScripts:
-          # NOTE: need to put down "sub" for the field to extract user info from
-          # https://github.com/jenkinsci/oic-auth-plugin/issues/213
-          
-            # https://community.jenkins.io/t/assist-with-oidc-example-within-jenkinsci-helm-chart/3289/2
-            # securityRealm: |
-            #   oic:
-            #     clientId: "k.vc-prod.jenkins"
-            #     clientSecret: "<hidden>"
-            #     wellKnownOpenIDConfigurationUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home"
-            #     tokenServerUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/token"
-            #     authorizationServerUrl: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/auth"
-            #     scopes: "openid email profile offline_access"
-            #     disableSslVerification: false
-            #     endSessionEndpoint: "https://keycloak.vc-prod.k.home.net/auth/realms/home/protocol/openid-connect/logout"
-            #     escapeHatchEnabled: false
-            #     logoutFromOpenidProvider: true
-            #     userNameField: "preferred_username"
-            #     emailFieldName: "email"
-            #     groupsFieldName: "groups"
-
+          # NOTES: 
+          # 1. need to put down "sub" for the field to extract user info from
+          # 2. "clientSecret" needs to come from the authN provider (Keycloak, in this instance)
+          # JCasC export as described here (https://www.jenkins.io/doc/book/managing/casc/#configuring-a-plugin-with-jcasc) will provide "clientSecret"
+          # as some encoding
+          # 3. "userNameField" needs to be "sub" (see issue 213 below)
+          # 4. specifying "securityRealm" will override any other specification of "securityRealm" 
+          # references:
+          # https://github.com/jenkinsci/oic-auth-plugin/issues/213 
+          # https://plugins.jenkins.io/oic-auth/
             jenkins-casc-configs: |
               jenkins:
+                securityRealm:
+                  oic:
+                    authorizationServerUrl: "https://auth.milkyway.localhostcert.net/realms/homelab/protocol/openid-connect/auth"
+                    automanualconfigure: "auto"
+                    clientId: "jenkins"
+                    clientSecret: "rgtwfxQV0IxZG9Rj1MkvZKMnPbjRDpZM"
+                    disableSslVerification: false
+                    endSessionEndpoint: "https://auth.milkyway.localhostcert.net/realms/homelab/protocol/openid-connect/logout"
+                    escapeHatchEnabled: true
+                    escapeHatchSecret: "{AQAAABAAAAAQQ4uYa//ZppNNQdGeq7mKRQqapNMEKxEnFCttm++uxIY=}"
+                    escapeHatchUsername: "admin"
+                    logoutFromOpenidProvider: false
+                    scopes: "web-origins acr address phone openid roles profile offline_access microprofile-jwt\
+                      \ email"
+                    tokenAuthMethod: "client_secret_post"
+                    tokenServerUrl: "https://auth.milkyway.localhostcert.net/realms/homelab/protocol/openid-connect/token"
+                    userInfoServerUrl: "https://auth.milkyway.localhostcert.net/realms/homelab/protocol/openid-connect/userinfo"
+                    wellKnownOpenIDConfigurationUrl: "https://auth.milkyway.localhostcert.net/realms/homelab/.well-known/openid-configuration"
+                    userNameField: "sub"
+
                 systemMessage: Lab - Get building!
                 clouds:
                   - kubernetes:
