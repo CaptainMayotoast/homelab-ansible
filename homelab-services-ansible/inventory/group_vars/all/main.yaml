@@ -23,13 +23,13 @@ jenkins:
   admin_password: 1234qwer!@#$QWER
   hostname: jenkins
   install_plugins:
-    - configuration-as-code:1700.v6f448841296e # https://plugins.jenkins.io/configuration-as-code/
-    - git:5.2.0 # https://plugins.jenkins.io/git/
-    - job-dsl:1.85 # https://plugins.jenkins.io/job-dsl/
+    - configuration-as-code:1775.v810dc950b_514 # https://plugins.jenkins.io/configuration-as-code/
+    - git:5.2.1 # https://plugins.jenkins.io/git/
+    - job-dsl:1.87 # https://plugins.jenkins.io/job-dsl/
     - oic-auth:2.6 # https://plugins.jenkins.io/oic-auth/
-    - kubernetes:4029.v5712230ccb_f8 # https://plugins.jenkins.io/kubernetes/
-    - kubernetes-credentials-provider:1.234.vf3013b_35f5b_a # https://plugins.jenkins.io/kubernetes-credentials-provider/
-    - pipeline-stage-view:2.33 # https://plugins.jenkins.io/pipeline-stage-view/
+    - kubernetes:4179.v3b_88431df708 # https://plugins.jenkins.io/kubernetes/
+    - kubernetes-credentials-provider:1.258.v95949f923a_a_e # https://plugins.jenkins.io/kubernetes-credentials-provider/
+    - pipeline-stage-view:2.34 # https://plugins.jenkins.io/pipeline-stage-view/
     - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
 
 docker_hub:

@@ -290,7 +290,7 @@
         create: true
         mount: true
         claimName: gitea-shared-storage
-        size: 70Gi
+        size: 50Gi
         accessModes:
           - ReadWriteOnce
         labels: {}
@@ -591,6 +591,33 @@
       ## @param extraDeploy Array of extra objects to deploy with the release
       ##
       extraDeploy: []
+
+- name: wait for Gitea pod to become available
+  shell: kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ && /Running/ {print $2}' | grep -E 'gitea-[0-9a-f]+-[0-9a-zA-Z]+'
+  register: pod_result
+  until: pod_result.stdout_lines | length > 0 # waiting for the Gitea web app to be ready
+  retries: 30  # Adjust the number of retries as needed
+  delay: 10
+
+# for idempotency
+- name: delete the Gitea 'jenkins' user (ignore failures)
+  shell: |
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user delete --username jenkins
+  ignore_errors: true
+
+- name: create user 'jenkins' within Gitea
+  shell: |
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --access-token true | grep -oE '[0-9a-f]{32,}'
+  register: jenkins_gitea_token
+
+- name: set the gitea 'jenkins' token as a fact
+  set_fact:
+    jenkins_gitea_token: "{{ jenkins_gitea_token.stdout }}"
+
+# debugging
+- name: find the above variable
+  debug:
+    msg: "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
 
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:

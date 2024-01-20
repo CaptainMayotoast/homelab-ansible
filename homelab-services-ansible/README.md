@@ -52,3 +52,8 @@ Jan 18th, 2024
 - After generating an access token with my oauth2 user, I was able to run `docker login gitea.milkyway.localhostcert.net`, which prompted me with a username field, and a password field, which is where the token was entered.
 - To push an image, I had to tag an image on my system to match the following scheme: `gitea.milkyway.localhostcert.net/aschwartz/img:tag`, i.e., `gitea.milkyway.localhostcert.net/aschwartz/meson-build:latest`.
 - For cloning with SSH, use `git@gitea-ssh.milkyway.localhostcert.net:<username>/<repo name>.git`.  (This assumes that the user has copied in the SSH public key from his machine).
+
+Jan 19th, 2024
+- Gitea token permissions for the container registry appear to only require "misc" permissions to be set to "read/write".
+- Verified an image (my Meson build image) can be pulled and pushed from seperate machines.
+- Revised the "wait" condition with awk and regex to properly wait for the right Gitea container to enter STATUS "running"
