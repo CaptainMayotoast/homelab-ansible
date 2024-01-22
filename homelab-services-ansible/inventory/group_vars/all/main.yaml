@@ -25,6 +25,7 @@ jenkins:
   install_plugins:
     - configuration-as-code:1775.v810dc950b_514 # https://plugins.jenkins.io/configuration-as-code/
     - git:5.2.1 # https://plugins.jenkins.io/git/
+    - gitea:1.4.6 # https://plugins.jenkins.io/gitea/
     - job-dsl:1.87 # https://plugins.jenkins.io/job-dsl/
     - oic-auth:2.6 # https://plugins.jenkins.io/oic-auth/
     - kubernetes:4179.v3b_88431df708 # https://plugins.jenkins.io/kubernetes/

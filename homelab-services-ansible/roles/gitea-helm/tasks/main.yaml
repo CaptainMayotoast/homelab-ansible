@@ -599,6 +599,7 @@
   retries: 30  # Adjust the number of retries as needed
   delay: 10
 
+# https://docs.gitea.com/next/administration/command-line
 # for idempotency
 - name: delete the Gitea 'jenkins' user (ignore failures)
   shell: |
@@ -607,7 +608,11 @@
 
 - name: create user 'jenkins' within Gitea
   shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --access-token true | grep -oE '[0-9a-f]{32,}'
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --access-token false
+
+- name: create access token for user 'jenkins' within Gitea
+  shell: |
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user generate-access-token --token-name jenkins --username jenkins --scopes all | grep -oE '[0-9a-f]{32,}'
   register: jenkins_gitea_token
 
 - name: set the gitea 'jenkins' token as a fact
@@ -617,7 +622,7 @@
 # debugging
 - name: find the above variable
   debug:
-    msg: "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
+    msg: "{{ jenkins_gitea_token }}" # "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
 
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:

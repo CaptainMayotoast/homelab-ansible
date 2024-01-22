@@ -57,3 +57,7 @@ Jan 19th, 2024
 - Gitea token permissions for the container registry appear to only require "misc" permissions to be set to "read/write".
 - Verified an image (my Meson build image) can be pulled and pushed from seperate machines.
 - Revised the "wait" condition with awk and regex to properly wait for the right Gitea container to enter STATUS "running"
+
+Jan 21, 2024
+- Connected Gitea to Jenkins by the Gitea plugin
+- Stepped through the "all" playbook starting somewhere in the Gitea role, because fact setting is stored in memory, so running Gitea and Jenkins playbooks separately was not working.  It appears that JCasC is correct for setting the right Gitea API token

@@ -63,6 +63,11 @@
     name: jenkins
     repo_url: https://charts.jenkins.io
 
+# debugging
+- name: find 'jenkins_gitea_token' variable
+  debug:
+    msg: "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
+
 # https://artifacthub.io/packages/helm/jenkinsci/jenkins?modal=values
 - name: install jenkins
   kubernetes.core.helm:
@@ -101,6 +106,24 @@
           # https://github.com/jenkinsci/oic-auth-plugin/issues/213 
           # https://plugins.jenkins.io/oic-auth/
             jenkins-casc-configs: |
+              credentials:
+                system:
+                  domainCredentials:
+                  - credentials:
+                    - giteaAccessToken:
+                        description: "jenkins"
+                        id: "jenkins"
+                        scope: GLOBAL
+                        token: "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
+
+              unclassified:
+                giteaServers:
+                  servers:
+                  - credentialsId: "jenkins"
+                    displayName: "gitea"
+                    manageHooks: true
+                    serverUrl: "https://gitea.milkyway.localhostcert.net"
+
               jenkins:
                 securityRealm:
                   oic:
@@ -122,7 +145,7 @@
                     wellKnownOpenIDConfigurationUrl: "https://auth.milkyway.localhostcert.net/realms/homelab/.well-known/openid-configuration"
                     userNameField: "sub"
 
-                systemMessage: Lab - Get building!
+                systemMessage: Homelab
                 clouds:
                   - kubernetes:
                       containerCap: 10
