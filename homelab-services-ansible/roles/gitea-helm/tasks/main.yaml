@@ -596,7 +596,7 @@
   shell: kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ && /Running/ {print $2}' | grep -E 'gitea-[0-9a-f]+-[0-9a-zA-Z]+'
   register: pod_result
   until: pod_result.stdout_lines | length > 0 # waiting for the Gitea web app to be ready
-  retries: 30  # Adjust the number of retries as needed
+  retries: 30
   delay: 10
 
 # https://docs.gitea.com/next/administration/command-line
@@ -608,7 +608,7 @@
 
 - name: create user 'jenkins' within Gitea
   shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --access-token false
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --must-change-password=false --access-token=false
 
 - name: create access token for user 'jenkins' within Gitea
   shell: |
@@ -663,6 +663,7 @@
                     attempts: 3
                     perTryTimeout: 5s
                     retryOn: gateway-error,connect-failure,refused-stream
+                    
         # # https://discuss.istio.io/t/virtual-service-with-https-and-ssh/10275                     
         # tcp:
         #   - match:

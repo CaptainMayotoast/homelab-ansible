@@ -88,7 +88,7 @@
           runAsNonRoot: true
           supplementalGroups: [1000]          
         jenkinsUrl: "https://{{ jenkins.hostname }}.{{ lan_tld }}"
-        serviceType: ClusterIP #LoadBalancer
+        serviceType: ClusterIP
         servicePort: 80
         admin:
           existingSecret: jenkins-secret
@@ -105,6 +105,8 @@
           # references:
           # https://github.com/jenkinsci/oic-auth-plugin/issues/213 
           # https://plugins.jenkins.io/oic-auth/
+          # 
+          # inventory_hostname is the same as for Gitea (the "Helm" host)
             jenkins-casc-configs: |
               credentials:
                 system:
