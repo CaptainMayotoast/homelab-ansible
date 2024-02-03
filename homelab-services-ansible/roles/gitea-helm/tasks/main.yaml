@@ -14,6 +14,18 @@
     name: gitea-charts
     repo_url: https://dl.gitea.com/charts/
 
+# https://gitea.com/gitea/helm-chart#additional-_appini_-settings
+# https://docs.gitea.com/usage/actions/quickstart/#set-up-gitea
+- name: create gitea configmap for app.ini
+  kubernetes.core.k8s:
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: gitea-app-ini-plaintext
+    data:
+      actions: |
+        ENABLED=true
+
 # https://artifacthub.io/packages/helm/gitea/gitea
 - name: install gitea
   kubernetes.core.helm:
@@ -430,12 +442,13 @@
         #  security:
         #    PASSWORD_COMPLEXITY: spec
 
+        # app.ini configuration
+        # https://gitea.com/gitea/helm-chart/pulls/240
+        # https://gitea.com/gitea/helm-chart#additional-_appini_-settings
         ## @param gitea.additionalConfigSources Additional configuration from secret or configmap
-        additionalConfigSources: []
-        #   - secret:
-        #       secretName: gitea-app-ini-oauth
-        #   - configMap:
-        #       name: gitea-app-ini-plaintext
+        additionalConfigSources:
+          - configMap:
+              name: gitea-app-ini-plaintext
 
         ## @param gitea.additionalConfigFromEnvs Additional configuration sources from environment variables
         additionalConfigFromEnvs: []
@@ -599,30 +612,19 @@
   retries: 30
   delay: 10
 
-# https://docs.gitea.com/next/administration/command-line
-# for idempotency
-- name: delete the Gitea 'jenkins' user (ignore failures)
+- name: create runner token (instance wide)
   shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user delete --username jenkins
-  ignore_errors: true
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea actions generate-runner-token | grep -o '[[:alnum:]]\{40\}'
+  register: gitea_runner_token
 
-- name: create user 'jenkins' within Gitea
-  shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user create --username jenkins --password jenkins --email asdf@asdf.com --must-change-password=false --access-token=false
-
-- name: create access token for user 'jenkins' within Gitea
-  shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea admin user generate-access-token --token-name jenkins --username jenkins --scopes all | grep -oE '[0-9a-f]{32,}'
-  register: jenkins_gitea_token
-
-- name: set the gitea 'jenkins' token as a fact
+- name: establish the runner token as a fact
   set_fact:
-    jenkins_gitea_token: "{{ jenkins_gitea_token.stdout }}"
+    gitea_runner_token: "{{ gitea_runner_token.stdout }}"
 
 # debugging
 - name: find the above variable
   debug:
-    msg: "{{ jenkins_gitea_token }}" # "{{ hostvars[inventory_hostname]['jenkins_gitea_token'] }}"
+    msg: "{{ gitea_runner_token }}" # "{{ hostvars[inventory_hostname]['gitea_runner_token'] }}"
 
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:

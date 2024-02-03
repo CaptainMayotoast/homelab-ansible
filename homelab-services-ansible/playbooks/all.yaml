@@ -10,7 +10,7 @@
 - import_playbook: istio-gateway.yaml
 - import_playbook: keycloak.yaml
 - import_playbook: gitea.yaml
-#- import_playbook: jenkins.yaml
+- import_playbook: gitea-actions.yaml
 #- import_playbook: pihole.yaml
 - import_playbook: kubernetes-dashboard.yaml
 - import_playbook: metrics-server.yaml

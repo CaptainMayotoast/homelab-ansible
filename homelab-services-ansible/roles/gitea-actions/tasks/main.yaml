@@ -4,12 +4,16 @@
 # reference: https://gitea.com/gitea/act_runner/src/branch/main/examples/kubernetes/rootless-docker.yaml
 # reference: https://docs.gitea.com/usage/actions/quickstart/
 
-- name: create 'gitea' namespace
+- name: create 'gitea-runner' namespace
   kubernetes.core.k8s:
     name: gitea-runner
     api_version: v1
     kind: Namespace
     state: present
+
+- name: find 'gitea_runner_token' variable
+  debug:
+    msg: "{{ hostvars[inventory_hostname]['gitea_runner_token'] }}"
 
 # https://longhorn.io/docs/1.5.3/volumes-and-nodes/create-volumes/
 - name: deploy a PersistentVolumeClaim for Gitea runner
@@ -38,7 +42,7 @@
     definition:
       apiVersion: v1
       data:
-        token: "{{ gitea.runner_1_token | b64encode }}"
+        token: "{{ hostvars[inventory_hostname]['gitea_runner_token'] | b64encode }}" # "{{ gitea.runner_1_token | b64encode }}"
       kind: Secret
       metadata:
         name: runner-secret

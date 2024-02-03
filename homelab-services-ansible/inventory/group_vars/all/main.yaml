@@ -2,10 +2,6 @@
 # General configurations
 ####################################################
 
-timezone: America/New_York
-
-validate_certs: false
-
 tld: localhostcert.net
 domain: milkyway
 lan_tld: "{{ domain }}.{{ tld }}" # milkyway.localhostcert.net
@@ -29,41 +25,6 @@ firewall_credential_file: '/home/ansible/.secret/router.milkyway_apikey.txt' # o
 # IP addresses to provide internal to this cluster (these must be considered as static IPs to the router)
 metallb:
   address_pool: 192.168.20.200-192.168.20.230
-
-####################################################
-# Jenkins configurations
-####################################################
-
-jenkins:
-  admin_username: admin
-  admin_password: 1234qwer!@#$QWER
-  hostname: jenkins
-  install_plugins:
-    - configuration-as-code:1775.v810dc950b_514 # https://plugins.jenkins.io/configuration-as-code/
-    - git:5.2.1 # https://plugins.jenkins.io/git/
-    - gitea:1.4.6 # https://plugins.jenkins.io/gitea/
-    - job-dsl:1.87 # https://plugins.jenkins.io/job-dsl/
-    - oic-auth:2.6 # https://plugins.jenkins.io/oic-auth/
-    - kubernetes:4179.v3b_88431df708 # https://plugins.jenkins.io/kubernetes/
-    - kubernetes-credentials-provider:1.258.v95949f923a_a_e # https://plugins.jenkins.io/kubernetes-credentials-provider/
-    - pipeline-stage-view:2.34 # https://plugins.jenkins.io/pipeline-stage-view/
-    - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
-
-####################################################
-# Dockhub configurations
-####################################################
-
-docker_hub:
-  username: mayotoast2222
-  password: txv2etc@btg6ZVA.fuc
-
-####################################################
-# GHCR configurations
-####################################################
-
-ghcr:
-  username: my_user
-  password: my_password
 
 ####################################################
 # Kubernetes dashboard configurations
@@ -134,7 +95,3 @@ keycloak:
   # Gitea Keycloak OIDC
   gitea_oidc_secret: "PIQ16fmGNlbJUFKVVNkSupC7BoGt2HPQ"
   gitea_client_id: "gitea"
-
-  # Jenkins Keycloak OIDC
-  jenkins_oidc_secret: "rgtwfxQV0IxZG9Rj1MkvZKMnPbjRDpZM"
-  jenkins_client_id: "jenkins"
