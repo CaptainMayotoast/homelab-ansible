@@ -1,3 +1,7 @@
+####################################################
+# General configurations
+####################################################
+
 timezone: America/New_York
 
 validate_certs: false
@@ -9,14 +13,26 @@ lan_tld: "{{ domain }}.{{ tld }}" # milkyway.localhostcert.net
 site_admin_email: "schwartz_alex@pm.me" # "{{ vault_site_admin_email }}"
 site_admin_username: "aschwartz" # "{{ vault_site_admin_username }}"
 
+####################################################
+# Firewall configurations
+####################################################
+
 # firewall information
 firewall_hostname: 'router' 
 firewall_ip: 192.168.10.1
-firewall_credential_file: '/home/ansible/.secret/router.milkyway_apikey.txt'
+firewall_credential_file: '/home/ansible/.secret/router.milkyway_apikey.txt' # on host launching Ansible
+
+####################################################
+# MetalLB configurations
+####################################################
 
 # IP addresses to provide internal to this cluster (these must be considered as static IPs to the router)
 metallb:
   address_pool: 192.168.20.200-192.168.20.230
+
+####################################################
+# Jenkins configurations
+####################################################
 
 jenkins:
   admin_username: admin
@@ -33,25 +49,49 @@ jenkins:
     - pipeline-stage-view:2.34 # https://plugins.jenkins.io/pipeline-stage-view/
     - workflow-aggregator:596.v8c21c963d92d # https://plugins.jenkins.io/workflow-aggregator/
 
+####################################################
+# Dockhub configurations
+####################################################
+
 docker_hub:
   username: mayotoast2222
   password: txv2etc@btg6ZVA.fuc
 
+####################################################
+# GHCR configurations
+####################################################
+
 ghcr:
   username: my_user
   password: my_password
+
+####################################################
+# Kubernetes dashboard configurations
+####################################################
 
 kubernetes_dashboard:
   load_balancer_ip: 192.168.20.201
   hostname: "kubedash"
   manifest_url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
 
+####################################################
+# Longhorn configurations
+####################################################
+
 longhorn:
   load_balancer_ip: 192.168.20.202
   hostname: "longhorn"
 
+####################################################
+# Metrics server configurations
+####################################################
+
 metrics_server:
   enabled: true
+
+####################################################
+# PiHole configurations
+####################################################
 
 pihole:
   admin_password: "P@ssw0rd"
@@ -60,22 +100,41 @@ pihole:
   hostname: "pihole"
   time_zone: "America/Indiana/Indianapolis"
 
+####################################################
+# Gitea configurations
+####################################################
+
 gitea:
-  admin_user: "root"
-  admin_password: "password"
+  admin_user: "gitea_admin"
+  admin_password: "r8sA8CPHD9!bt6d"
   hostname: "gitea"
   gitea_dn: "gitea.{{ domain }}.{{ tld }}"
   ssh_load_balancer_ip: 192.168.20.211
   ssh_hostname: "gitea-ssh"
+  runner_1_token: "iSI85ByJ4lOes5bH6RBROI86JBrqyiQdCi3ZbFsG"
+
+####################################################
+# Istio configurations
+####################################################
 
 # the gateway should be able to handle all traffic in an HTTPS way, and the Istio Gateway itself needs an IP
 istio:
   load_balancer_ip: 192.168.20.210
+
+####################################################
+# Keycloak configurations
+####################################################
 
 keycloak:
   hostname: "auth"
   keycloak_dn: "auth.{{ domain }}.{{ tld }}"
   keycloak_realm: "homelab-users"
   load_balancer_ip: 192.168.20.212 # for debugging configuration
+
+  # Gitea Keycloak OIDC
   gitea_oidc_secret: "PIQ16fmGNlbJUFKVVNkSupC7BoGt2HPQ"
   gitea_client_id: "gitea"
+
+  # Jenkins Keycloak OIDC
+  jenkins_oidc_secret: "rgtwfxQV0IxZG9Rj1MkvZKMnPbjRDpZM"
+  jenkins_client_id: "jenkins"

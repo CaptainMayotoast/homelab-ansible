@@ -177,23 +177,6 @@
                         }
                       }
                     }
-                - script: >
-                    pipelineJob('meson-build') {
-                      description("")
-                      definition {
-                        cpsScm {
-                          scm {
-                            git {
-                              remote { url('https://jenkins:923e9e71f6bf50a1750370eff55b59067f3f7eaa@gitea.milkyway.localhostcert.net/aschwartz/meson-build.git') }
-                              branches('mainline')
-                              scriptPath('Jenkinsfile')
-                              extensions { }
-                              lightweight(true)
-                            }
-                          }
-                        }
-                      }
-                    }
       persistence:
         enabled: true
         storageClass: longhorn
