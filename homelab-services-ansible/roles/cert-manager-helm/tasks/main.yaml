@@ -15,6 +15,7 @@
     name: certmanager
     namespace: certmanager
     chart_ref: "jetstack/cert-manager"
+    chart_version: "{{ certmanager_version }}"
     create_namespace: false
     # purge: yes
     update_repo_cache: yes

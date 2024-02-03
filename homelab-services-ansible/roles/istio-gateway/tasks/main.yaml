@@ -1,0 +1,42 @@
+##################################################
+#
+# Install the actual Istio gateway (https://github.com/datastrophic/kubernetes-deployment)
+#
+
+- name: install a shared-gateway to be reused by other deployments
+  kubernetes.core.k8s:
+    name: shared-gateway
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: networking.istio.io/v1alpha3
+      kind: Gateway
+      metadata:
+        name: shared-gateway
+        namespace: istio-system
+      spec:
+        meshConfig:
+          accessLogFile: /dev/stdout
+        selector:
+          # Use the default Ingress Gateway installed by Istio
+          istio: ingressgateway
+        servers:
+          - port:
+              number: 80
+              name: http
+              protocol: HTTP
+            hosts:
+              - "*"
+            tls:
+              httpsRedirect: true
+          - port:
+              number: 443
+              name: https
+              protocol: HTTPS
+            hosts:
+              - "*.milkyway.localhostcert.net"
+              #- "gitea.milkyway.localhostcert.net"
+              #- "jenkins.milkyway.localhostcert.net"
+            tls:
+              mode: SIMPLE
+              credentialName: cert-manager-istio

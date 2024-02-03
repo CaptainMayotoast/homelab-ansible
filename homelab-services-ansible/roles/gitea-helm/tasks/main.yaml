@@ -14,11 +14,25 @@
     name: gitea-charts
     repo_url: https://dl.gitea.com/charts/
 
+# https://gitea.com/gitea/helm-chart#additional-_appini_-settings
+# https://docs.gitea.com/usage/actions/quickstart/#set-up-gitea
+- name: create gitea configmap for app.ini
+  kubernetes.core.k8s:
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: gitea-app-ini-plaintext
+    data:
+      actions: |
+        ENABLED=true
+
+# https://artifacthub.io/packages/helm/gitea/gitea
 - name: install gitea
   kubernetes.core.helm:
     name: gitea
     namespace: gitea
     chart_ref: gitea-charts/gitea
+    chart_version: "{{ gitea_version }}"
     create_namespace: false
     # purge: yes
     update_repo_cache: yes
@@ -141,8 +155,8 @@
           ipFamilyPolicy:
           ipFamilies:
           loadBalancerSourceRanges: []
-          annotations:
-            metallb.universe.tf/allow-shared-ip: test
+          # annotations:
+          #   metallb.universe.tf/allow-shared-ip: test
         ## @param service.ssh.type Kubernetes service type for ssh traffic
         ## @param service.ssh.port Port number for ssh traffic
         ## @param service.ssh.clusterIP ClusterIP setting for ssh autosetup for deployment is None
@@ -167,8 +181,8 @@
           ipFamilies:
           hostPort:
           loadBalancerSourceRanges: []
-          annotations:
-            metallb.universe.tf/allow-shared-ip: test
+          # annotations:
+          #   metallb.universe.tf/allow-shared-ip: test
 
       ## @section Ingress
       ## @param ingress.enabled Enable ingress
@@ -288,7 +302,7 @@
         create: true
         mount: true
         claimName: gitea-shared-storage
-        size: 10Gi
+        size: 50Gi
         accessModes:
           - ReadWriteOnce
         labels: {}
@@ -367,8 +381,8 @@
         admin:
           # existingSecret: gitea-admin-secret
           existingSecret:
-          username: gitea_admin
-          password: r8sA8CPHD9!bt6d
+          username: "{{ gitea.admin_user }}"
+          password: "{{ gitea.admin_password }}"
           email: "gitea@local.domain"
 
         ## @param gitea.metrics.enabled Enable Gitea metrics
@@ -400,18 +414,20 @@
         # Either specify inline `key` and `secret` or refer to them via `existingSecret`
         ## @param gitea.oauth OAuth configuration
         oauth:
-          []
-          # - name: 'OAuth 1'
-          #   provider:
-          #   key:
-          #   secret:
-          #   existingSecret:
-          #   autoDiscoverUrl:
-          #   useCustomUrls:
-          #   customAuthUrl:
-          #   customTokenUrl:
-          #   customProfileUrl:
-          #   customEmailUrl:
+          # https://gitea.com/gitea/helm-chart#user-content-oauth2-settings
+          # https://docs.gitea.com/administration/command-line#admin
+          - name: 'Keycloak OAuth'
+            provider: 'openidConnect'
+            key: "{{ keycloak.gitea_client_id }}" 
+            secret: "{{ keycloak.gitea_oidc_secret }}"
+            # existingSecret:
+            autoDiscoverUrl: "https://auth.{{ lan_tld }}/realms/homelab/.well-known/openid-configuration"
+            skipLocal2fa: "true"
+            # useCustomUrls:
+            # customAuthUrl:
+            # customTokenUrl:
+            # customProfileUrl:
+            # customEmailUrl:
 
         ## @param gitea.config.server.SSH_PORT SSH port for rootlful Gitea image
         ## @param gitea.config.server.SSH_LISTEN_PORT SSH port for rootless Gitea image
@@ -420,17 +436,19 @@
           #  RUN_MODE: dev
           server:
             #SSH_PORT: 22 # rootful image
+            ROOT_URL: "https://{{ gitea.gitea_dn }}"
             SSH_LISTEN_PORT: 2022 # rootless image
         #
         #  security:
         #    PASSWORD_COMPLEXITY: spec
 
+        # app.ini configuration
+        # https://gitea.com/gitea/helm-chart/pulls/240
+        # https://gitea.com/gitea/helm-chart#additional-_appini_-settings
         ## @param gitea.additionalConfigSources Additional configuration from secret or configmap
-        additionalConfigSources: []
-        #   - secret:
-        #       secretName: gitea-app-ini-oauth
-        #   - configMap:
-        #       name: gitea-app-ini-plaintext
+        additionalConfigSources:
+          - configMap:
+              name: gitea-app-ini-plaintext
 
         ## @param gitea.additionalConfigFromEnvs Additional configuration sources from environment variables
         additionalConfigFromEnvs: []
@@ -587,6 +605,27 @@
       ##
       extraDeploy: []
 
+- name: wait for Gitea pod to become available
+  shell: kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ && /Running/ {print $2}' | grep -E 'gitea-[0-9a-f]+-[0-9a-zA-Z]+'
+  register: pod_result
+  until: pod_result.stdout_lines | length > 0 # waiting for the Gitea web app to be ready
+  retries: 30
+  delay: 10
+
+- name: create runner token (instance wide)
+  shell: |
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea actions generate-runner-token | grep -o '[[:alnum:]]\{40\}'
+  register: gitea_runner_token
+
+- name: establish the runner token as a fact
+  set_fact:
+    gitea_runner_token: "{{ gitea_runner_token.stdout }}"
+
+# debugging
+- name: find the above variable
+  debug:
+    msg: "{{ gitea_runner_token }}" # "{{ hostvars[inventory_hostname]['gitea_runner_token'] }}"
+
 - name: define a VirtualService for Gitea
   kubernetes.core.k8s:
     name: virtualservice-gitea
@@ -599,11 +638,11 @@
         name: gitea
         namespace: gitea
       spec:
-        hosts:
-          - "gitea.milkyway.localhostcert.net"
         gateways:
           # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
           - shared-gateway.istio-system.svc.cluster.local
+        hosts:
+          - "gitea.milkyway.localhostcert.net"
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
         http:
           # https://github.com/istio/istio/issues/19599
@@ -626,6 +665,7 @@
                     attempts: 3
                     perTryTimeout: 5s
                     retryOn: gateway-error,connect-failure,refused-stream
+                    
         # # https://discuss.istio.io/t/virtual-service-with-https-and-ssh/10275                     
         # tcp:
         #   - match:

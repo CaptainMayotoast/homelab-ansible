@@ -13,23 +13,23 @@
       community.general.proxmox_snap:
         vmid: 100
         state: present
-        snapname: save-state-before-tools-deployment
+        snapname: save-state-before-longhorn-removal
         retention: 4
     - name: Create new container snapshot and keep only the 4 newest snapshots
       community.general.proxmox_snap:
         vmid: 101
         state: present
-        snapname: save-state-before-tools-deployment
+        snapname: save-state-before-longhorn-removal
         retention: 4
     - name: Create new container snapshot and keep only the 4 newest snapshots
       community.general.proxmox_snap:
         vmid: 102
         state: present
-        snapname: save-state-before-tools-deployment
+        snapname: save-state-before-longhorn-removal
         retention: 4
     - name: Create new container snapshot and keep only the 4 newest snapshots
       community.general.proxmox_snap:
         vmid: 103
         state: present
-        snapname: save-state-before-tools-deployment
+        snapname: save-state-before-longhorn-removal
         retention: 4

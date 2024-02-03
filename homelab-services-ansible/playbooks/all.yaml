@@ -3,9 +3,14 @@
 - import_playbook: longhorn.yaml
 - import_playbook: router_dns.yaml
 - import_playbook: cert-manager.yaml
-- import_playbook: istio.yaml
+- import_playbook: istio-install.yaml
+# the reason this step maybe commented out is 
+# to avoid making too many API calls to Let's Encrypt
+- import_playbook: istio-certmanager.yaml
+- import_playbook: istio-gateway.yaml
+- import_playbook: keycloak.yaml
 - import_playbook: gitea.yaml
-- import_playbook: jenkins.yaml
-- import_playbook: pihole.yaml
+- import_playbook: gitea-actions.yaml
+#- import_playbook: pihole.yaml
 - import_playbook: kubernetes-dashboard.yaml
 - import_playbook: metrics-server.yaml
