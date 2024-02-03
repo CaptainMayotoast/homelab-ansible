@@ -1,7 +1,9 @@
 # certmanager https://artifacthub.io/packages/helm/cert-manager/cert-manager
 certmanager_version: 1.13.3
+
 # gitea https://artifacthub.io/packages/helm/gitea/gitea
 gitea_version: 10.0.2
+
 # istio
 # base: https://artifacthub.io/packages/helm/avesha/istio-base
 # control plane: https://artifacthub.io/packages/helm/istio-official/istiod
@@ -9,8 +11,6 @@ gitea_version: 10.0.2
 istio_base_version: 1.20.2
 istio_control_plane_version: 1.20.1
 istio_gateway_version: 1.20.1
+
 # keycloak
 keycloak_version: 20.0.2
-# Jenkins
-# https://artifacthub.io/packages/helm/jenkinsci/jenkins
-jenkins_version: 4.12.1

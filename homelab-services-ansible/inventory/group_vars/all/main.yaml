@@ -78,7 +78,8 @@ gitea:
 # Istio configurations
 ####################################################
 
-# the gateway should be able to handle all traffic in an HTTPS way, and the Istio Gateway itself needs an IP
+# the gateway should be able to handle all traffic in an HTTPS way, 
+# and the Istio Gateway itself needs an IP
 istio:
   load_balancer_ip: 192.168.20.210
 
