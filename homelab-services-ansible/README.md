@@ -65,3 +65,7 @@ Jan 21, 2024
 Jan 22, 2024
 - Performed some minor tweaks on Gitea installation.  There seems to be a weird state Gitea enters with enough modification of the `Jenkins` user.
 - [Mirroring](https://docs.gitea.com/usage/repo-mirror) is simple.  Create a personal access token (in BitBucket) and add as a migration (repo settings, "Mirror Settings").  Once the repo is migrated, p[convert](https://github.com/go-gitea/gitea/issues/7609#issuecomment-1469560266) the repo to a "regular" repo (otherwise, the repo is read-only).  Then, add under "Mirror Settings", a "push mirror".  The same access token from the git service (i.e. BitBucket) can be used as the password.
+
+February 3rd, 2024
+- Cleanup code base, removed Jenkins in favor of Gitea Actions.
+- Added additional versions for software installed within this cluster in `version.yaml`.

@@ -21,6 +21,7 @@
     name: metallb
     namespace: metallb-system
     chart_ref: metallb/metallb
+    chart_version: "{{ metallb_version }}"
     create_namespace: false
     wait: yes
 
