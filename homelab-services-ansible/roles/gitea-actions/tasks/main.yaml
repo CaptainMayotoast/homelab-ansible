@@ -1,5 +1,5 @@
 # for now, this Gitea Actions YAML requires manual intervention
-# once https://gitea.com/gitea/helm-chart/pulls/596 gets merged, switch to using the Gitea Helm chart for 
+# once https://gitea.com/gitea/helm-chart/pulls/596 gets merged, switch to using the Gitea Helm chart for
 # deploying Gitea Actions runners
 # reference: https://gitea.com/gitea/act_runner/src/branch/main/examples/kubernetes/rootless-docker.yaml
 # reference: https://docs.gitea.com/usage/actions/quickstart/
@@ -48,7 +48,62 @@
         name: runner-secret
       type: Opaque
 
-- name: launch Deployment for Gitea Actions runner
+# - name: launch Deployment for Gitea Actions runner
+#   kubernetes.core.k8s:
+#     name: gitea-runner-secret-1
+#     state: present
+#     namespace: gitea-runner
+#     definition:
+#       apiVersion: apps/v1
+#       kind: Deployment
+#       metadata:
+#         labels:
+#           app: act-runner
+#         name: act-runner
+#       spec:
+#         replicas: 1
+#         selector:
+#           matchLabels:
+#             app: act-runner
+#         strategy: {}
+#         template:
+#           metadata:
+#             creationTimestamp: null
+#             labels:
+#               app: act-runner
+#           spec:
+#             restartPolicy: Always
+#             volumes:
+#             - name: runner-data
+#               persistentVolumeClaim:
+#                 claimName: act-runner-vol
+#             securityContext:
+#               fsGroup: 1000
+#             containers:
+#             - name: runner
+#               image: gitea/act_runner:nightly-dind-rootless
+#               imagePullPolicy: Always
+#               env:
+#               - name: DOCKER_HOST
+#                 value: tcp://127.0.0.1:2376
+#               - name: DOCKER_CERT_PATH
+#                 value: /certs/client
+#               - name: DOCKER_TLS_VERIFY
+#                 value: "1"
+#               - name: GITEA_INSTANCE_URL
+#                 value: http://gitea-http.gitea.svc.cluster.local:4000 # see the Gitea Helm installation
+#               - name: GITEA_RUNNER_REGISTRATION_TOKEN
+#                 valueFrom:
+#                   secretKeyRef:
+#                     name: runner-secret
+#                     key: token
+#               securityContext:
+#                 privileged: true
+#               volumeMounts:
+#               - name: runner-data
+#                 mountPath: /data
+
+- name: launch (docker in docker) Deployment for Gitea Actions runner
   kubernetes.core.k8s:
     name: gitea-runner-secret-1
     state: present
@@ -74,31 +129,46 @@
           spec:
             restartPolicy: Always
             volumes:
-            - name: runner-data
-              persistentVolumeClaim:
-                claimName: act-runner-vol
-            securityContext:
-              fsGroup: 1000
-            containers:
-            - name: runner
-              image: gitea/act_runner:nightly-dind-rootless
-              imagePullPolicy: Always
-              env:
-              - name: DOCKER_HOST
-                value: tcp://127.0.0.1:2376
-              - name: DOCKER_CERT_PATH
-                value: /certs/client
-              - name: DOCKER_TLS_VERIFY
-                value: "1"
-              - name: GITEA_INSTANCE_URL
-                value: http://gitea-http.gitea.svc.cluster.local:4000 # see the Gitea Helm installation
-              - name: GITEA_RUNNER_REGISTRATION_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: runner-secret
-                    key: token
-              securityContext:
-                privileged: true
-              volumeMounts:
+              - name: docker-certs
+                emptyDir: {}
               - name: runner-data
-                mountPath: /data    
+                persistentVolumeClaim:
+                  claimName: act-runner-vol
+            containers:
+              - name: runner
+                image: gitea/act_runner:nightly
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! nc -z localhost 2376 </dev/null; do echo 'waiting for docker daemon...'; sleep 5; done; /sbin/tini -- /opt/act/run.sh",
+                  ]
+                env:
+                  - name: DOCKER_HOST
+                    value: tcp://127.0.0.1:2376
+                  - name: DOCKER_CERT_PATH
+                    value: /certs/client
+                  - name: DOCKER_TLS_VERIFY
+                    value: "1"
+                  - name: GITEA_INSTANCE_URL
+                    value: http://gitea-http.gitea.svc.cluster.local:4000
+                  - name: GITEA_RUNNER_REGISTRATION_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: runner-secret
+                        key: token
+                volumeMounts:
+                  - name: docker-certs
+                    mountPath: /certs
+                  - name: runner-data
+                    mountPath: /data
+              - name: daemon
+                image: docker:23.0.6-dind
+                env:
+                  - name: DOCKER_TLS_CERTDIR
+                    value: /certs
+                securityContext:
+                  privileged: true
+                volumeMounts:
+                  - name: docker-certs
+                    mountPath: /certs

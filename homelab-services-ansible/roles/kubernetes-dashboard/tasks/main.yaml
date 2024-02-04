@@ -2,7 +2,7 @@
   kubernetes.core.k8s:
     state: present
     namespace: kubernetes-dashboard
-    definition: '{{ item }}'
+    definition: "{{ item }}"
   with_items: '{{ lookup("url", kubernetes_dashboard.manifest_url, split_lines=False) | from_yaml_all | list }}'
   when: item is not none
 
@@ -43,9 +43,9 @@
         kind: ClusterRole
         name: cluster-admin
       subjects:
-      - kind: ServiceAccount
-        name: admin-user
-        namespace: kubernetes-dashboard
+        - kind: ServiceAccount
+          name: admin-user
+          namespace: kubernetes-dashboard
 
 - name: fetch 'admin-user' service account details from 'kubernetes-dashboard' namespace
   kubernetes.core.k8s_info:
