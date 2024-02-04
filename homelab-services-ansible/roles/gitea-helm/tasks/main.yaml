@@ -18,13 +18,16 @@
 # https://docs.gitea.com/usage/actions/quickstart/#set-up-gitea
 - name: create gitea configmap for app.ini
   kubernetes.core.k8s:
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: gitea-app-ini-plaintext
-    data:
-      actions: |
-        ENABLED=true
+    state: present
+    namespace: gitea
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      data:
+        actions: |
+          ENABLED=true
+      metadata:
+        name: gitea-app-ini-plaintext
 
 # https://artifacthub.io/packages/helm/gitea/gitea
 - name: install gitea
