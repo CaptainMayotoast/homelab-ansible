@@ -1,3 +1,4 @@
+- import_playbook: print_variables.yaml
 - import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml

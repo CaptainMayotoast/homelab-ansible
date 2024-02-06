@@ -42,7 +42,7 @@
     definition:
       apiVersion: v1
       data:
-        token: "{{ hostvars[inventory_hostname]['gitea_runner_token'] | b64encode }}" # "{{ gitea.runner_1_token | b64encode }}"
+        token: "{{ hostvars[inventory_hostname]['gitea_runner_token'] | b64encode }}"
       kind: Secret
       metadata:
         name: runner-secret
@@ -151,7 +151,7 @@
                   - name: DOCKER_TLS_VERIFY
                     value: "1"
                   - name: GITEA_INSTANCE_URL
-                    value: http://gitea-http.gitea.svc.cluster.local:4000
+                    value: http://gitea-http.gitea.svc.cluster.local:4000 # internal local cluster FQDN
                   - name: GITEA_RUNNER_REGISTRATION_TOKEN
                     valueFrom:
                       secretKeyRef:

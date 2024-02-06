@@ -1,0 +1,133 @@
+- hosts: localhost
+  gather_facts: yes
+
+  tasks:
+
+    - name: loop over rsync commands to run
+      debug:
+        msg: "rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~"
+      loop: "{{ groups.control_planes }}"
+
+    - name: find 'tld' variable
+      debug:
+        msg: "{{ tld }}"
+
+    - name: find 'domain' variable
+      debug:
+        msg: "{{ domain }}"
+
+    - name: find 'lan_tld' variable
+      debug:
+        msg: "{{ lan_tld }}"
+
+    - name: find 'firewall_hostname' variable
+      debug:
+        msg: "{{ firewall_hostname }}"
+
+    - name: find 'firewall_ip' variable
+      debug:
+        msg: "{{ firewall_ip }}"
+
+    - name: find 'firewall_credential_file' variable
+      debug:
+        msg: "{{ firewall_credential_file }}"
+
+    - name: find 'metallb.address_pool' variable
+      debug:
+        msg: "{{ metallb.address_pool }}"
+
+    - name: find 'kubernetes_dashboard.load_balancer_ip' variable
+      debug:
+        msg: "{{ kubernetes_dashboard.load_balancer_ip }}"
+
+    - name: find 'kubernetes_dashboard.hostname' variable
+      debug:
+        msg: "{{ kubernetes_dashboard.hostname }}"
+
+    - name: find 'kubernetes_dashboard.manifest_url' variable
+      debug:
+        msg: "{{ kubernetes_dashboard.manifest_url }}"
+
+    - name: find 'longhorn.load_balancer_ip' variable
+      debug:
+        msg: "{{ longhorn.load_balancer_ip }}"
+
+    - name: find 'longhorn.hostname' variable
+      debug:
+        msg: "{{ longhorn.hostname }}"
+
+    - name: find 'metrics_server.enabled' variable
+      debug:
+        msg: "{{ metrics_server.enabled }}"
+
+    - name: find 'pihole.admin_password' variable
+      debug:
+        msg: "{{ pihole.admin_password }}"
+
+    - name: find 'pihole.home_dns' variable
+      debug:
+        msg: "{{ pihole.home_dns }}"
+
+    - name: find 'pihole.dns_load_balancer_ip' variable
+      debug:
+        msg: "{{ pihole.dns_load_balancer_ip }}"
+
+    - name: find 'pihole.hostname' variable
+      debug:
+        msg: "{{ pihole.hostname }}"
+
+    - name: find 'pihole.time_zone' variable
+      debug:
+        msg: "{{ pihole.time_zone }}"
+
+    - name: find 'gitea.admin_user' variable
+      debug:
+        msg: "{{ gitea.admin_user }}"
+
+    - name: find 'gitea.admin_password' variable
+      debug:
+        msg: "{{ gitea.admin_password }}"
+
+    - name: find 'gitea.hostname' variable
+      debug:
+        msg: "{{ gitea.hostname }}"
+
+    - name: find 'gitea.gitea_dn' variable
+      debug:
+        msg: "{{ gitea.gitea_dn }}"
+
+    - name: find 'gitea.ssh_load_balancer_ip' variable
+      debug:
+        msg: "{{ gitea.ssh_load_balancer_ip }}"
+
+    - name: find 'gitea.ssh_hostname' variable
+      debug:
+        msg: "{{ gitea.ssh_hostname }}"
+
+    - name: find 'istio.load_balancer_ip' variable
+      debug:
+        msg: "{{ istio.load_balancer_ip }}"
+
+    - name: find 'istio.cert_manager_credential_file' variable
+      debug:
+        msg: "{{ istio.cert_manager_credential_file }}"
+
+    - name: find 'keycloak.hostname' variable
+      debug:
+        msg: "{{ keycloak.hostname }}"
+
+    - name: find 'keycloak.keycloak_dn' variable
+      debug:
+        msg: "{{ keycloak.keycloak_dn }}"
+
+    - name: find 'keycloak.keycloak_realm' variable
+      debug:
+        msg: "{{ keycloak.keycloak_realm }}"
+
+    - name: find 'keycloak.gitea_oidc_secret' variable
+      debug:
+        msg: "{{ keycloak.gitea_oidc_secret }}"
+
+    - name: find 'keycloak.gitea_client_id' variable
+      debug:
+        msg: "{{ keycloak.gitea_client_id }}"
