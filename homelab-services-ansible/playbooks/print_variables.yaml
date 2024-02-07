@@ -8,15 +8,15 @@
         msg: "rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~"
       loop: "{{ groups.control_planes }}"
 
-    - name: find 'tld' variable
+    - name: find 'domain_name' variable
       debug:
         msg: "{{ domain_name }}"
 
-    - name: find 'domain' variable
+    - name: find 'third_level_domain' variable
       debug:
         msg: "{{ third_level_domain }}"
 
-    - name: find 'lan_tld' variable
+    - name: find 'lan_domain' variable
       debug:
         msg: "{{ lan_domain }}"
 
