@@ -14,17 +14,17 @@
     - name: Add MetalLB address to DNS override - gitea-ssh
       ansibleguy.opnsense.unbound_host:
         hostname: "{{ gitea.ssh_hostname }}"
-        domain: "{{ lan_tld }}"
+        domain: "{{ lan_domain }}"
         value: "{{ gitea.ssh_load_balancer_ip }}"
 
     - name: Add MetalLB address to DNS override - gitea
       ansibleguy.opnsense.unbound_host:
         hostname: "{{ gitea.hostname }}"
-        domain: "{{ lan_tld }}"
+        domain: "{{ lan_domain }}"
         value: "{{ istio.load_balancer_ip }}"
 
     - name: Add MetalLB address to DNS override - keycloak
       ansibleguy.opnsense.unbound_host:
         hostname: "{{ keycloak.hostname }}"
-        domain: "{{ lan_tld }}"
+        domain: "{{ lan_domain }}"
         value: "{{ istio.load_balancer_ip }}"   

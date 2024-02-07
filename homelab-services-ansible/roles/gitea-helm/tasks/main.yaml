@@ -206,7 +206,7 @@
           # kubernetes.io/ingress.class: nginx
           # kubernetes.io/tls-acme: "true"
         hosts:
-          - host: "{{ ssh_hostname }}.{{ lan_tld }}"
+          - host: "{{ ssh_hostname }}.{{ lan_domain }}"
             paths:
               - path: /
                 pathType: Prefix

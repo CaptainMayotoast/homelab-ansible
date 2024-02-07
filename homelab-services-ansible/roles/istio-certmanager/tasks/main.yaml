@@ -70,9 +70,9 @@
         namespace: istio-system
       spec:
         dnsNames:
-          - "{{ lan_tld }}"
+          - "{{ lan_domain }}"
           # A wildcard cert as well (use quotes)
-          - "*.{{ lan_tld }}"
+          - "*.{{ lan_domain }}"
         secretName: cert-manager-istio
         issuerRef:
           name: letsencrypt-prod-cluster # metadata name from ClusterIssuer

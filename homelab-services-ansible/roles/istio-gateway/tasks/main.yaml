@@ -34,7 +34,7 @@
               name: https
               protocol: HTTPS
             hosts:
-              - "*.{{ lan_tld }}"
+              - "*.{{ lan_domain }}"
             tls:
               mode: SIMPLE
               credentialName: cert-manager-istio

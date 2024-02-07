@@ -10,23 +10,19 @@
 
     - name: find 'tld' variable
       debug:
-        msg: "{{ tld }}"
+        msg: "{{ domain_name }}"
 
     - name: find 'domain' variable
       debug:
-        msg: "{{ domain }}"
+        msg: "{{ third_level_domain }}"
 
     - name: find 'lan_tld' variable
       debug:
-        msg: "{{ lan_tld }}"
+        msg: "{{ lan_domain }}"
 
     - name: find 'firewall_hostname' variable
       debug:
         msg: "{{ firewall_hostname }}"
-
-    - name: find 'firewall_ip' variable
-      debug:
-        msg: "{{ firewall_ip }}"
 
     - name: find 'firewall_credential_file' variable
       debug:
@@ -119,10 +115,6 @@
     - name: find 'keycloak.keycloak_dn' variable
       debug:
         msg: "{{ keycloak.keycloak_dn }}"
-
-    - name: find 'keycloak.keycloak_realm' variable
-      debug:
-        msg: "{{ keycloak.keycloak_realm }}"
 
     - name: find 'keycloak.gitea_oidc_secret' variable
       debug:
