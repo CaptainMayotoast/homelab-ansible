@@ -25,3 +25,6 @@ metallb_version: 0.14.3
 # keycloak
 # not Helm based
 keycloak_version: 20.0.2
+
+# sonarqube
+sonarqube_verison: "10.4.0+2288"

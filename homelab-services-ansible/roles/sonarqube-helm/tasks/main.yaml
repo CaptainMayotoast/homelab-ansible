@@ -1,0 +1,99 @@
+- name: create 'sonarqube' namespace
+  kubernetes.core.k8s:
+    name: sonarqube
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: add sonarqube helm repo
+  kubernetes.core.helm_repository:
+    name: sonarqube
+    repo_url: https://SonarSource.github.io/helm-chart-sonarqube
+
+# https://artifacthub.io/packages/helm/sonarqube/sonarqube
+- name: install sonarqube
+  kubernetes.core.helm:
+    name: sonarqube
+    namespace: sonarqube
+    chart_ref: sonarqube/sonarqube
+    chart_version: "{{ sonarqube_verison }}"
+    create_namespace: false
+    # purge: yes
+    update_repo_cache: yes
+    values:
+
+      edition: "community"
+
+      initFs:
+        enabled: false
+
+      initSysctl:
+        enabled: false
+
+      # no need for a testing ingress controller, since Istio is installed
+      nginx:
+        enabled: false
+
+      persistence:
+        enabled: true
+        storageClass: longhorn
+        size: 20Gi
+  
+      postgresql:
+        enabled: false
+        persistence:
+          storageClass: longhorn
+
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 0
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
+
+      service:
+        type: ClusterIP
+        externalPort: 9000
+        
+
+- name: define a VirtualService for Sonarqube
+  kubernetes.core.k8s:
+    name: virtualservice-sonarqube
+    state: present
+    namespace: sonarqube
+    definition:
+      apiVersion: networking.istio.io/v1beta1
+      kind: VirtualService
+      metadata:
+        name: sonarqube
+        namespace: sonarqube
+      spec:
+        gateways:
+          # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
+          - shared-gateway.istio-system.svc.cluster.local
+        hosts:
+          - "sonarqube.milkyway.localhostcert.net"
+        # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
+        http:
+          # https://github.com/istio/istio/issues/19599
+          - name: "sonarqube routes"
+            match:
+              - uri:
+                  prefix: /
+              - uri:
+                  regex: '^.*\.(ico|png|jpg|js|woff|svg|woff2|eot|ttf|css)$'
+            route:
+              - destination:
+                  # use 'kubectl run alpine --rm -ti --image alpine /bin/sh' to debug from within cluster
+                  host: gitea-http.gitea.svc.cluster.local
+                  port:
+                    number: 9000 # this matches the port defined in the helm chart
+
+                  # https://medium.com/@in.live.in/puzzling-503s-and-istio-1bf504b9aae6
+                  # this appears needed to work around HTTP 503 errors
+                  retries:
+                    attempts: 3
+                    perTryTimeout: 5s
+                    retryOn: gateway-error,connect-failure,refused-stream

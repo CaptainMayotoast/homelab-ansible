@@ -50,7 +50,7 @@
         accessModes:
           - ReadWriteOnce
         size: "2Gi"
-        storageClass: "longhorn"
+        storageClass: longhorn
 
       adminPassword: "{{ pihole.admin_password }}"
 

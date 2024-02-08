@@ -1,3 +1,0 @@
-- hosts: control_planes
-  roles:
-    - roles/control_planes

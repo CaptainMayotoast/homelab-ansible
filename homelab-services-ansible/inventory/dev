@@ -1,10 +1,10 @@
 [control_planes]
-192.168.20.132
+homelabvm1
 
 [nodes]
-192.168.20.133
-192.168.20.134
-192.168.20.135
+homelabvm2
+homelabvm3
+homelabvm4
 
 [helm]
-192.168.20.132
+homelabvm1

@@ -28,3 +28,9 @@
         hostname: "{{ keycloak.hostname }}"
         domain: "{{ lan_domain }}"
         value: "{{ istio.load_balancer_ip }}"   
+
+    - name: Add Sonarqube address to DNS override - sonarqube
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ sonarqube.hostname }}"
+        domain: "{{ lan_domain }}"
+        value: "{{ istio.load_balancer_ip }}"           

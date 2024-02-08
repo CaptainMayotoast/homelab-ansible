@@ -1,4 +1,4 @@
-- hosts: localhost
+- hosts: "control_planes, nodes"
   gather_facts: yes
 
   tasks:
