@@ -1,0 +1,78 @@
+##################################################
+#
+# Cert-manager certificate creation
+#
+
+# - name: print hostvars
+#   ansible.builtin.debug:
+#     msg:
+#       - "{{ groups.nodes }}"
+
+- name: loop over rsync commands to run
+  delegate_to: localhost
+  debug:
+    msg: "rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~"
+  loop: "{{ groups.control_planes }}"
+
+- name: transfer secrets file to helm host
+  delegate_to: localhost
+  shell: |
+    rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~
+  loop: "{{ groups.control_planes }}"
+
+# added for idempotency (if no secret set, no big deal)
+- name: delete current acme-dns secret
+  shell: |
+    kubectl delete secret -n istio-system acme-dns --ignore-not-found
+
+# create the secret to build the cert with API credentials from https://www.getlocalcert.net/
+- name: create acme-dns secret (getlocalcert.net API creds)
+  shell: |
+    kubectl create secret -n istio-system generic acme-dns --from-file ~/cert-manager-creds.json
+
+# https://docs.getlocalcert.net/acme-clients/cert-manager/
+- name: define a ClusterIssuer for Istio Gateway
+  kubernetes.core.k8s:
+    name: clusterissuer-istio
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: letsencrypt-prod-cluster
+        namespace: istio-system
+      spec:
+        acme:
+          email: "{{ vault_certmanager_email }}"
+          privateKeySecretRef:
+            name: letsencrypt-prod-cluster
+            # current API endpoint is production (commented version is staging version)
+          server: https://acme-v02.api.letsencrypt.org/directory # https://acme-staging-v02.api.letsencrypt.org/directory
+          solvers:
+            - dns01:
+                acmeDNS:
+                  host: https://api.getlocalcert.net/api/v1/acme-dns-compat
+                  accountSecretRef:
+                    name: acme-dns
+                    key: cert-manager-creds.json
+
+- name: define a certificate for Istio Gateway
+  kubernetes.core.k8s:
+    name: cert-istio
+    state: present
+    namespace: istio-system
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: cert-manager-istio
+        namespace: istio-system
+      spec:
+        dnsNames:
+          - "{{ lan_domain }}"
+          # A wildcard cert as well (use quotes)
+          - "*.{{ lan_domain }}"
+        secretName: cert-manager-istio
+        issuerRef:
+          name: letsencrypt-prod-cluster # metadata name from ClusterIssuer

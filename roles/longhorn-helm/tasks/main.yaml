@@ -1,3 +1,10 @@
+- name: create 'longhorn' namespace
+  kubernetes.core.k8s:
+    name: longhorn-system
+    api_version: v1
+    kind: Namespace
+    state: present
+
 - name: add longhorn helm repo
   kubernetes.core.helm_repository:
     name: longhorn
@@ -8,8 +15,12 @@
     name: longhorn
     namespace: longhorn-system
     chart_ref: longhorn/longhorn
-    create_namespace: true
+    chart_version: "{{ longhorn_version }}"
+    create_namespace: false
     values:
+      defaultSettings:
+        replicaSoftAntiAffinity: true
+        defaultReplicaCount: 2
       service:
         ui:
           type: LoadBalancer

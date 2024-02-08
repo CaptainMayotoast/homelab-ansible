@@ -10,10 +10,16 @@
     filename: helm
     repo: 'deb [signed-by=/etc/apt/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main'
 
-- name:  install helm
+- name: install helm
   apt:
     update_cache: yes
     name:  helm
+    state: present
+
+- name: install helm diff
+  kubernetes.core.helm_plugin:
+    plugin_path: https://github.com/databus23/helm-diff
+    plugin_version: v3.8.1
     state: present
 
 - name: install pip

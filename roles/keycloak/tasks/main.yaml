@@ -1,0 +1,149 @@
+- name: create 'oauth' namespace
+  kubernetes.core.k8s:
+    name: oauth
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/20.0.2/kubernetes-examples/keycloak.yaml
+- name: declare Keycloak as a Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: oauth
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: keycloak
+        labels:
+          app: keycloak
+      spec:
+        ports:
+          # https://stackoverflow.com/questions/55741170/container-port-pods-vs-container-port-service
+          - name: http
+            port: 8080
+            targetPort: 8080
+        selector:
+          app: keycloak
+        type: ClusterIP
+
+# inspiration to put Keycloak config into a ConfigMap
+# https://stackoverflow.com/questions/71740110/create-keycloak-deployment-with-imported-realm-configuration
+
+# this JSON was retrieved by accessing Keycloak within the pod and following the docs on extracting configuration
+# https://www.keycloak.org/server/importExport
+# 1. /opt/keycloak/bin/kc.sh export --file /tmp/<filename>.json
+# 2. cat /tmp/<filename>.json
+# 3. copy json, paste within "realm.json" below
+- name: create a ConfigMap from Keycloak realm JSON
+  kubernetes.core.k8s:
+    state: present
+    namespace: oauth
+    definition:
+      apiVersion: v1
+      data:
+        realm.json: |
+          "{{ vault_keycloak_config_json }}"
+      kind: ConfigMap
+      metadata:
+        name: keycloak-configmap
+
+- name: deploy Keycloak
+  kubernetes.core.k8s:
+    state: present
+    namespace: oauth
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: keycloak
+        labels:
+          app: keycloak
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: keycloak
+        template:
+          metadata:
+            labels:
+              app: keycloak
+          spec:
+            containers:
+              - name: keycloak
+                image: "quay.io/keycloak/keycloak:{{ keycloak_version }}"
+                # https://www.mastertheboss.com/keycloak/keycloak-with-docker/
+                args: ["start-dev --import-realm"]
+                env:
+                  # https://www.keycloak.org/server/all-config
+                  # https://www.keycloak.org/server/configuration
+                  - name: KEYCLOAK_ADMIN
+                    value: "{{ vault_keycloak_admin_user }}"
+                  - name: KEYCLOAK_ADMIN_PASSWORD
+                    value: "{{ vault_keycloak_admin_password }}"
+                  - name: KC_PROXY
+                    value: "edge"
+                  - name: KC_HOSTNAME_STRICT_HTTPS
+                    value: "true"
+                  - name: KC_HOSTNAME
+                    value: "{{ keycloak.keycloak_dn }}"
+                  - name: KC_HOSTNAME_ADMIN_URL
+                    value: "https://{{ keycloak.keycloak_dn }}"
+                  - name: KEYCLOAK_IMPORT
+                    value: /opt/keycloak/data/import/realm.json # determined by the volume section below
+                  - name: JAVA_OPTS_APPEND
+                    value: "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
+                  # - name: KC_HTTP_PORT
+                  #   value: "8080"
+                # https://www.keycloak.org/server/importExport
+                # https://kubernetes.io/docs/concepts/storage/volumes/
+                volumeMounts:
+                  - name: keycloak-init-config
+                    mountPath: /opt/keycloak/data/import
+                ports:
+                  - name: http
+                    containerPort: 8080
+                readinessProbe:
+                  httpGet:
+                    path: /realms/homelab
+                    port: 8080
+            # https://kubernetes.io/docs/concepts/storage/volumes/
+            volumes:
+              - name: keycloak-init-config
+                configMap:
+                  name: keycloak-configmap
+
+- name: define a VirtualService for Keycloak
+  kubernetes.core.k8s:
+    name: virtualservice-keycloak
+    state: present
+    namespace: oauth
+    definition:
+      apiVersion: networking.istio.io/v1beta1
+      kind: VirtualService
+      metadata:
+        name: keycloak
+        namespace: oauth
+      spec:
+        gateways:
+          - shared-gateway.istio-system.svc.cluster.local # master gateway (there probably should only be 1 gateway)
+        hosts:
+          - "{{ keycloak.keycloak_dn }}"
+        http:
+          - match:
+              - uri:
+                  prefix: /
+              - uri:
+                  regex: '^.*\.(ico|png|jpg|js|woff|svg|woff2|eot|ttf|css|html)$'
+            route:
+              - destination:
+                  host: keycloak.oauth.svc.cluster.local
+                  port:
+                    number: 8080 # this matches the port set above for the Deployment
+
+                  # https://medium.com/@in.live.in/puzzling-503s-and-istio-1bf504b9aae6
+                  # this appears needed to work around HTTP 503 errors
+                  retries:
+                    attempts: 3
+                    perTryTimeout: 5s
+                    retryOn: gateway-error,connect-failure,refused-stream

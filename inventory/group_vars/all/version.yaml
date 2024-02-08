@@ -1,0 +1,30 @@
+# certmanager 
+# https://artifacthub.io/packages/helm/cert-manager/cert-manager
+certmanager_version: 1.13.3
+
+# gitea 
+# https://artifacthub.io/packages/helm/gitea/gitea
+gitea_version: 10.0.2
+
+# istio
+# base: https://artifacthub.io/packages/helm/avesha/istio-base
+# control plane: https://artifacthub.io/packages/helm/istio-official/istiod
+# gateway: https://artifacthub.io/packages/helm/istio-official/gateway
+istio_base_version: 1.20.2
+istio_control_plane_version: 1.20.1
+istio_gateway_version: 1.20.1
+
+# longhorn
+# https://artifacthub.io/packages/helm/longhorn/longhorn
+longhorn_version: 1.6.0
+
+# metallb
+# https://artifacthub.io/packages/helm/metallb/metallb
+metallb_version: 0.14.3
+
+# keycloak
+# not Helm based
+keycloak_version: 20.0.2
+
+# sonarqube
+sonarqube_verison: "10.4.0+2288"
