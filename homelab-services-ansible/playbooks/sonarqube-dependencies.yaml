@@ -1,0 +1,3 @@
+- hosts: "control_planes, nodes"
+  roles:
+    - role: 'roles/sonarqube-dependencies'

@@ -1,3 +1,4 @@
+- import_playbook: print_variables.yaml
 - import_playbook: pre-reqs.yaml
 - import_playbook: metallb.yaml
 - import_playbook: longhorn.yaml
@@ -11,6 +12,7 @@
 - import_playbook: keycloak.yaml
 - import_playbook: gitea.yaml
 - import_playbook: gitea-actions.yaml
+- import_playbook: sonarqube.yaml
 # TODO - put PiHole behind the Istio gateway
 #- import_playbook: pihole.yaml
 - import_playbook: kubernetes-dashboard.yaml

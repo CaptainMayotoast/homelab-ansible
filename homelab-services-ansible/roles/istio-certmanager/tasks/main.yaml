@@ -3,16 +3,22 @@
 # Cert-manager certificate creation
 #
 
-- name: print hostvars
-  ansible.builtin.debug:
-    msg:
-      - "{{ groups.nodes }}"
+# - name: print hostvars
+#   ansible.builtin.debug:
+#     msg:
+#       - "{{ groups.nodes }}"
 
-# TODO - remove some hard coded arguments
+- name: loop over rsync commands to run
+  delegate_to: localhost
+  debug:
+    msg: "rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~"
+  loop: "{{ groups.control_planes }}"
+
 - name: transfer secrets file to helm host
   delegate_to: localhost
   shell: |
-    rsync /home/ansible/homelab/homelab-services-ansible/roles/cert-manager-helm/secrets/cert-manager-creds.json ansible@{{ groups.control_planes }}:~
+    rsync {{ istio.cert_manager_credential_file }} ansible@{{ item }}:~
+  loop: "{{ groups.control_planes }}"
 
 # added for idempotency (if no secret set, no big deal)
 - name: delete current acme-dns secret
@@ -38,7 +44,7 @@
         namespace: istio-system
       spec:
         acme:
-          email: mayotoast2222@duck.com
+          email: "{{ vault_certmanager_email }}"
           privateKeySecretRef:
             name: letsencrypt-prod-cluster
             # current API endpoint is production (commented version is staging version)
@@ -64,9 +70,9 @@
         namespace: istio-system
       spec:
         dnsNames:
-          - milkyway.localhostcert.net
+          - "{{ lan_domain }}"
           # A wildcard cert as well (use quotes)
-          - "*.milkyway.localhostcert.net"
+          - "*.{{ lan_domain }}"
         secretName: cert-manager-istio
         issuerRef:
           name: letsencrypt-prod-cluster # metadata name from ClusterIssuer

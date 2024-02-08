@@ -34,9 +34,7 @@
               name: https
               protocol: HTTPS
             hosts:
-              - "*.milkyway.localhostcert.net"
-              #- "gitea.milkyway.localhostcert.net"
-              #- "jenkins.milkyway.localhostcert.net"
+              - "*.{{ lan_domain }}"
             tls:
               mode: SIMPLE
               credentialName: cert-manager-istio
