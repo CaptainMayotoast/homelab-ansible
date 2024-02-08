@@ -1,6 +1,0 @@
-password_file
-proxmox-ansible/ansible_python_env/*
-opnsense-ansible/venv/*
-kubernetes-ansible/venv/*
-cert-manager-creds.json
-.vscode
