@@ -4,6 +4,10 @@
     api_version: v1
     kind: Namespace
     state: present
+    definition:
+      metadata:
+        labels:
+          istio-injection: enabled # https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/
 
 - name: add sonarqube helm repo
   kubernetes.core.helm_repository:
@@ -22,40 +26,42 @@
     update_repo_cache: yes
     values:
 
-      edition: "community"
+      # edition: "community"
 
-      initFs:
-        enabled: false
+      # initFs:
+      #   enabled: false
 
-      initSysctl:
-        enabled: false
+      # initSysctl:
+      #   enabled: false
 
-      # no need for a testing ingress controller, since Istio is installed
-      nginx:
-        enabled: false
+      # # no need for a testing ingress controller, since Istio is installed
+      # nginx:
+      #   enabled: false
 
       persistence:
-        enabled: true
+        enabled: false
         storageClass: longhorn
         size: 20Gi
   
       postgresql:
-        enabled: false
-        persistence:
-          storageClass: longhorn
+        enabled: true
+        # service:
+        #   port: 5432
+        # persistence:
+        #   storageClass: longhorn
 
-      allowPrivilegeEscalation: false
-      runAsNonRoot: true
-      runAsUser: 1000
-      runAsGroup: 0
-      seccompProfile:
-        type: RuntimeDefault
-      capabilities:
-        drop: ["ALL"]
+      # allowPrivilegeEscalation: false
+      # runAsNonRoot: true
+      # runAsUser: 1000
+      # runAsGroup: 0
+      # seccompProfile:
+      #   type: RuntimeDefault
+      # capabilities:
+      #   drop: ["ALL"]
 
-      service:
-        type: ClusterIP
-        externalPort: 9000
+      # service:
+      #   type: ClusterIP
+      #   externalPort: 9000
         
 
 - name: define a VirtualService for Sonarqube

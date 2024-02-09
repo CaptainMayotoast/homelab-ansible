@@ -25,18 +25,18 @@ ansible-galaxy collection install kubernetes.core
 ansible-playbook -i inventory/dev playbooks/print_variables.yaml --user ansible -e @secrets.enc --vault-password-file ./password_file
 
 # install it all
-ansible-playbook -i inventory/dev playbooks/all.yaml --user ansible
+ansible-playbook -i inventory/dev playbooks/all.yaml --user ansible -e @secrets.enc --vault-password-file ./password_file
 
 # pick up from a step
-ansible-playbook -i inventory/dev playbooks/<playbook name>.yaml --user ansible --start-at-task="wait for Gitea pod to become available"
+ansible-playbook -i inventory/dev playbooks/<playbook name>.yaml --user ansible --start-at-task="wait for Gitea pod to become available" -e @secrets.enc --vault-password-file ./password_file
 
 # step through one at a time
-ansible-playbook -i inventory/dev playbooks/<playbook name>.yaml --user ansible --start-at-task="wait for Gitea pod to become available" --step
+ansible-playbook -i inventory/dev playbooks/<playbook name>.yaml --user ansible --start-at-task="wait for Gitea pod to become available" -e @secrets.enc --vault-password-file ./password_file --step
 ```
 
 # Update Nodes
 ```
-ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml --user ansible
+ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml --user ansible -e @secrets.enc --vault-password-file ./password_file
 ```
 
 # Service notes

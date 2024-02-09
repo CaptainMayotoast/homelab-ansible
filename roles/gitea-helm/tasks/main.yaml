@@ -563,7 +563,7 @@
           adminPassword: changeme3
         service:
           ports:
-            postgresql: 5432
+            postgresql: 5001
         primary:
           persistence:
             size: 10Gi
@@ -586,7 +586,7 @@
               username: gitea
             service:
               ports:
-                postgresql: 5432
+                postgresql: 5001
         primary:
           persistence:
             size: 10Gi
