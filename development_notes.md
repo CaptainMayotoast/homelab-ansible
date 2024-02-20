@@ -28,3 +28,6 @@ February 3rd, 2024
 
 February 5th, 2024
 - Placed many variables into an Ansible Vault
+
+February 19th, 2024
+- Fought with JSON serialization: needed to store JSON in an Ansible vault for the Keycloak config.  Turns out, I needed "| to_json" appended to my JSON (i.e. { ... json here ... } | to_json).  The configuration from Keycloak can be copied into the Ansible vault file, and "| to_json" needs to be appended in order for the K8s ConfigMap to ingest as JSON.
