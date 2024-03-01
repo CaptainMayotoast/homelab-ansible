@@ -34,7 +34,7 @@
 # https://www.keycloak.org/server/importExport
 # 1. /opt/keycloak/bin/kc.sh export --file /tmp/<filename>.json
 # 2. cat /tmp/<filename>.json
-# 3. copy json, paste within "realm.json" below
+# 3. copy json, paste within "realm.json" below (or place within an Ansible vault)
 - name: create a ConfigMap from Keycloak realm JSON
   kubernetes.core.k8s:
     state: present
@@ -42,8 +42,7 @@
     definition:
       apiVersion: v1
       data:
-        realm.json: |
-          "{{ vault_keycloak_config_json }}"
+        realm.json: "{{ vault_keycloak_config_json }}"
       kind: ConfigMap
       metadata:
         name: keycloak-configmap
@@ -73,7 +72,7 @@
               - name: keycloak
                 image: "quay.io/keycloak/keycloak:{{ keycloak_version }}"
                 # https://www.mastertheboss.com/keycloak/keycloak-with-docker/
-                args: ["start-dev --import-realm"]
+                args: ["start-dev","--import-realm", "--cache-stack=kubernetes"]
                 env:
                   # https://www.keycloak.org/server/all-config
                   # https://www.keycloak.org/server/configuration
@@ -91,10 +90,20 @@
                     value: "https://{{ keycloak.keycloak_dn }}"
                   - name: KEYCLOAK_IMPORT
                     value: /opt/keycloak/data/import/realm.json # determined by the volume section below
+                  - name: KC_DB
+                    value: "postgres"
+                  - name: KC_DB_URL_HOST
+                    value: "oauth-postgres-postgresql" # name of service
+                  - name: KC_DB_USERNAME
+                    value: "postgres"
+                  - name: KC_DB_PASSWORD
+                    value: "{{ vault_keycloak_postgres_password }}"
                   - name: JAVA_OPTS_APPEND
                     value: "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
-                  # - name: KC_HTTP_PORT
-                  #   value: "8080"
+                  - name: KC_DB_URL
+                    value: jdbc:postgresql://oauth-postgres-postgresql/keycloak                 
+                  - name: POSTGRES_DB
+                    value: "keycloak"
                 # https://www.keycloak.org/server/importExport
                 # https://kubernetes.io/docs/concepts/storage/volumes/
                 volumeMounts:
