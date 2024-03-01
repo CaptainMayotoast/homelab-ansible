@@ -24,7 +24,9 @@ metallb_version: 0.14.3
 
 # keycloak
 # not Helm based
-keycloak_version: 20.0.2
+# https://github.com/keycloak/keycloak/releases
+keycloak_version: 23.0.7
+postgresql_chart_version: 14.2.3
 
 # sonarqube
 sonarqube_verison: "10.4.0+2288"
