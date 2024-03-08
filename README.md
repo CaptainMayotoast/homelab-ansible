@@ -66,6 +66,10 @@ ansible-playbook -i inventory/dev playbooks/update-and-reboot.yaml --user ansibl
 
 - Provides IP addresses that are within the static IP ranges of my router.
 
+## Sonarqube
+
+- Static analysis tool.
+
 ## PiHole
 
 - A work in progress application to integrate, would block ads network wide.
