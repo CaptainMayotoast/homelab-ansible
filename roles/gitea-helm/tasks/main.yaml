@@ -644,7 +644,7 @@
       spec:
         gateways:
           # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
-          - shared-gateway.istio-system.svc.cluster.local
+          - istio-system/shared-gateway
         hosts:
           - "gitea.milkyway.localhostcert.net"
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute

@@ -35,20 +35,20 @@
       #   enabled: false
 
       # # no need for a testing ingress controller, since Istio is installed
-      # nginx:
-      #   enabled: false
+      nginx:
+        enabled: false
 
       persistence:
         enabled: false
         storageClass: longhorn
-        size: 20Gi
+        size: 5Gi
   
       postgresql:
         enabled: true
         # service:
         #   port: 5432
-        # persistence:
-        #   storageClass: longhorn
+        persistence:
+          storageClass: longhorn
 
       # allowPrivilegeEscalation: false
       # runAsNonRoot: true
@@ -78,7 +78,7 @@
       spec:
         gateways:
           # https://discuss.istio.io/t/istio-ingressgateway-controller-and-namespaces/1217/8
-          - shared-gateway.istio-system.svc.cluster.local
+          - istio-system/shared-gateway # shared-gateway.istio-system.svc.cluster.local
         hosts:
           - "sonarqube.milkyway.localhostcert.net"
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
@@ -93,7 +93,7 @@
             route:
               - destination:
                   # use 'kubectl run alpine --rm -ti --image alpine /bin/sh' to debug from within cluster
-                  host: gitea-http.gitea.svc.cluster.local
+                  host: sonarqube-sonarqube.sonarqube.svc.cluster.local
                   port:
                     number: 9000 # this matches the port defined in the helm chart
 
