@@ -206,7 +206,7 @@
           # kubernetes.io/ingress.class: nginx
           # kubernetes.io/tls-acme: "true"
         hosts:
-          - host: "{{ ssh_hostname }}.{{ lan_domain }}"
+          - host: "{{ gitea.ssh_hostname }}.{{ lan_domain }}"
             paths:
               - path: /
                 pathType: Prefix
@@ -425,7 +425,7 @@
             key: "{{ keycloak.gitea_client_id }}" 
             secret: "{{ keycloak.gitea_oidc_secret }}"
             # existingSecret:
-            autoDiscoverUrl: "https://{{ keycloak_dn }}/realms/homelab/.well-known/openid-configuration"
+            autoDiscoverUrl: "https://{{ keycloak.keycloak_dn }}/realms/homelab/.well-known/openid-configuration"
             skipLocal2fa: "true"
             # useCustomUrls:
             # customAuthUrl:
@@ -618,7 +618,7 @@
 
 - name: create runner token (instance wide)
   shell: |
-    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis/ {print $2}') -c gitea -n gitea -- gitea actions generate-runner-token | grep -o '[[:alnum:]]\{40\}'
+    kubectl exec $(kubectl get pods -A | awk '/gitea/ && !/postgresql|redis|runner/ {print $2}') -c gitea -n gitea -- gitea actions generate-runner-token | grep -o '[[:alnum:]]\{40\}'
   register: gitea_runner_token
 
 - name: establish the runner token as a fact

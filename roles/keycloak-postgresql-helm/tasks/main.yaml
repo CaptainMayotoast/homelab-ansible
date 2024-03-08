@@ -1,0 +1,48 @@
+- name: create 'oauth' namespace
+  kubernetes.core.k8s:
+    name: oauth
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: add postgresql (bitnami) helm repo
+  kubernetes.core.helm_repository:
+    name: bitnami
+    repo_url: https://charts.bitnami.com/bitnami
+
+- name: add Postgresql PVC
+  kubernetes.core.k8s:
+    state: present
+    namespace: oauth
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: keycloak-postgres-vol-pvc
+      spec:
+        storageClassName: longhorn
+        accessModes:
+          # https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+
+- name: Install Postgresql Chart
+  kubernetes.core.helm:
+    release_name: oauth-postgres
+    chart_ref: bitnami/postgresql
+    chart_version: "{{ postgresql_chart_version }}"
+    release_namespace: oauth
+    update_repo_cache: yes
+    values:
+      auth:
+        postgresPassword: "{{ vault_keycloak_postgres_password }}"
+        enablePostgresUser: true
+        database: keycloak
+      primary:
+        persistence:
+          enabled: true
+          existingClaim: keycloak-postgres-vol-pvc
+      volumePermissions:
+        enabled: true
