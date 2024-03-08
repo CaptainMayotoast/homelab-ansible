@@ -2,14 +2,14 @@
 Ansible playbooks to install tools on a Kubernetes cluster
 
 # Features
-- :scroll: **Cert-manager** :scroll:
-- :hammer: **Gitea** (with a runner, just enable Actions on each repo) :hammer:
-- :door: **Istio** (HTTPS gateway) :door:
-- :closed_lock_with_key: **Keycloak** (simple identity provider to allow friends to easily access Gitea) :closed_lock_with_key:
+- :scroll: Cert-manager :scroll:
+- :hammer: Gitea (with a runner, just enable Actions on each repo) :hammer:
+- :door: Istio (HTTPS gateway) :door:
+- :closed_lock_with_key: Keycloak (simple identity provider to allow friends to easily access Gitea) :closed_lock_with_key:
 - 🗃️ Longhorn (underlying cluster block storage) 🗃️
 - :metal: MetalLB (load balancer for bare metal clusters) :metal:
 - 🚧 SonarQube 🚧
-- 🛑 [FUTURE] **PiHole** (DNS sinkhole) 🛑
+- 🛑 [FUTURE] PiHole (DNS sinkhole) 🛑
 
 # Credits
 - [Mark Perdue's](https://github.com/markperdue/homelab-ansible) work initially contained Jenkins, Longhorn, MetalLB and the Kubernetes Dashboard.  I wanted to learn Ansible and Terraform, and I found his Ansible deployments for K8s and services on K8s to be very organized and straightforward to understand. 
