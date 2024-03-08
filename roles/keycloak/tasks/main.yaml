@@ -4,6 +4,10 @@
     api_version: v1
     kind: Namespace
     state: present
+    definition:
+      metadata:
+        labels:
+          istio-injection: enabled # https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/
 
 # https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/20.0.2/kubernetes-examples/keycloak.yaml
 - name: declare Keycloak as a Service
@@ -135,7 +139,7 @@
         namespace: oauth
       spec:
         gateways:
-          - shared-gateway.istio-system.svc.cluster.local # master gateway (there probably should only be 1 gateway)
+          - istio-system/shared-gateway
         hosts:
           - "{{ keycloak.keycloak_dn }}"
         http:

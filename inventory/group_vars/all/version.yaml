@@ -30,3 +30,4 @@ postgresql_chart_version: 14.2.3
 
 # sonarqube
 sonarqube_verison: "10.4.0+2288"
+sonarqube_posgresql_verison: 14.0.4
