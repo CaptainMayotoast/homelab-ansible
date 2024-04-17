@@ -4,6 +4,10 @@
     api_version: v1
     kind: Namespace
     state: present
+    definition:
+      metadata:
+        labels:
+          istio-injection: enabled # https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/
 
 - name: add postgresql (bitnami) helm repo
   kubernetes.core.helm_repository:
@@ -41,8 +45,12 @@
         enablePostgresUser: true
         database: keycloak
       primary:
+        livenessProbe:
+          initialDelaySeconds: 60
         persistence:
           enabled: true
           existingClaim: keycloak-postgres-vol-pvc
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
       volumePermissions:
         enabled: true
